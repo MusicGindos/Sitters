@@ -1,0 +1,24 @@
+{
+  "name": "sitters",
+  "version": "1.0.0",
+  "description": "Application for invite sitters",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MusicGindos/Sitters.git"
+  },
+  "author": "Arel Gindos, Dassi Rosen, Gregori K",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MusicGindos/Sitters/issues"
+  },
+  "homepage": "https://github.com/MusicGindos/Sitters#readme",
+  "dependencies": {
+    "cors": "^2.8.1",
+    "express": "^4.14.1",
+    "mongoose": "^4.8.4"
+  }
+}
