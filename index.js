@@ -17,20 +17,15 @@ app.use(function(req, res, next) {
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, content-type, Accept');
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader("Content-Type", "text/html");
+    res.setHeader("Content-Type", "application/json");
     next();
 });
 
-app.all('/local/*', (req,res,next) => {
-    res.setHeader("Content-Type", "application/json");
-next()
-});
-
-
 app.get('/', controller.index);
-
+app.post('/test', controller.test);
 
 app.get('*', (req,res,next) => {
-    var err = new Error();
+    let err = new Error();
     err.status = 404;
     next(err);
 });

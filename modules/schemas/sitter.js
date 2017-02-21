@@ -1,9 +1,9 @@
-var mongoose = require('mongoose'),
-    schema = mongoose.Schema,
-    Sitter;
-var base = require('./base.js');
+let mongoose = require('mongoose'),
+    Schema = mongoose.Schema;
+extend = require('mongoose-schema-extend');
+let base = require('./base.js');
 
-var Review = new schema({
+let Review = new Schema({
     parentID:       {type:Number, required: true},
     sitterID:       {type:Number, required: true},
     date:           {type:Date, required: true, default: Date.now},
@@ -11,7 +11,7 @@ var Review = new schema({
     rating:         {type:Number, required: true}
 });
 
-var sitter = base.User.extend({
+let Sitter = base.User.extend({
     rating:                      {type: Number, required: true, default: 0},
     education:        	     [String],
     personalityScore: {type: Number, required: true},
@@ -26,9 +26,8 @@ var sitter = base.User.extend({
     mobility:                {type: Number, required: true, default: false},
     specialNeeds:       [String],
     review:                   [Review]
-});
+},{collection:"sitters"});
 
-
-exports.Sitter = sitter;
-Sitter = mongoose.model('Sitter', sitter);
-module.exports = Sitter;
+module.exports = {
+    Sitter: Sitter
+};

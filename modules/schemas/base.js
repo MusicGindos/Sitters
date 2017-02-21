@@ -1,15 +1,15 @@
-var mongoose = require('mongoose'),
-    schema = mongoose.Schema;
+let mongoose = require('mongoose'),
+    Schema = mongoose.Schema;
 
-var address = new schema({
-    city:		 String,
-    street:      String,
-    houseNumber: {type:Number, min:0},
-    latitude:    {type:Number, default:0},
-    longitude:   {type:Number, default:0}
+let Address = new Schema({
+    city: String,
+    street: String,
+    houseNumber: {type: Number, min: 0},
+    latitude:  {type: Number, default: 0},
+    longitude: {type: Number, default: 0}
 });
 
-var hours = new schema({
+let Hours = new Schema({
     sunday:{
         start:  {type:String, default:"0"},
         finish: {type:String, default:"0"}
@@ -40,21 +40,21 @@ var hours = new schema({
     }
 });
 
-var invite = new schema({
-    address:    {type:address, required: true},
+let Invite = new Schema({
+    address:    {type:Address, required: true},
     startTime:  {type:Date, required: true},
     endTime:    {type:Date, required: true},
     date:       {type:Date, required: true},
     status:     {type:String, default:"waiting"},
     recurring:  {
-        workingHours: hours,
+        workingHours: Hours,
         until: Date
     },
     sitterID:   {type:Number, required: true},
     parentID:   {type:Number, required: true}
 });
 
-var user = new schema({
+let User = new Schema({
     id:             {type: Number, required: true, unique: true},
     email:          {type: String, required: true, unique: true},
     name :          {type:String, required: true},
@@ -64,15 +64,15 @@ var user = new schema({
     coverPhoto:     String,
     age:            {type:Number,required: true, min: 0},
     location:       String,
-    address:        {type:address,required: true},
+    address:        Address,
     languages:      [String],
     timezone:       String,
-    invites:        [invite]
+    invites:        [Invite]
 });
 
-
-exports.Address = address;
-exports.Hours = hours;
-exports.Invite = invite;
-exports.User = user;
-
+module.exports = {
+    Address: Address,
+    User: User,
+    Hours: Hours,
+    Invite: Invite
+};
