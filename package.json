@@ -21,6 +21,7 @@
     "cors": "^2.8.1",
     "express": "^4.14.1",
     "mongoose": "^4.8.4",
-    "mongoose-schema-extend": "^0.2.2"
+    "mongoose-schema-extend": "^0.2.2",
+    "shortid": "^2.2.6"
   }
 }

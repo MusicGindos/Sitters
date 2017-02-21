@@ -1,5 +1,6 @@
 let mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+    Schema = mongoose.Schema,
+    shortid = require('shortid');
 
 let Address = new Schema({
     city:       String,
@@ -55,7 +56,10 @@ let Invite = new Schema({
 });
 
 let User = new Schema({
-    id:             {type: Number, required: true, unique: true},
+    _id: {
+        type: String,
+        default: shortid.generate
+    },
     email:          {type: String, required: true, unique: true},
     name :          {type:String, required: true},
     joinedTime:     {type: Date, default: Date.now},
@@ -74,3 +78,4 @@ module.exports = {
     Hours:          Hours,
     Invite:         Invite
 };
+
