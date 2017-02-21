@@ -2,11 +2,11 @@ let mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
 let Address = new Schema({
-    city: String,
-    street: String,
-    houseNumber: {type: Number, min: 0},
-    latitude:  {type: Number, default: 0},
-    longitude: {type: Number, default: 0}
+    city:       String,
+    street:     String,
+    houseNumber:{type: Number, min: 0},
+    latitude:   {type: Number, default: 0},
+    longitude:  {type: Number, default: 0}
 });
 
 let Hours = new Schema({
@@ -64,15 +64,13 @@ let User = new Schema({
     coverPhoto:     String,
     age:            {type:Number,required: true, min: 0},
     location:       String,
-    address:        Address,
     languages:      [String],
     timezone:       String,
-    invites:        [Invite]
 });
 
 module.exports = {
-    Address: Address,
-    User: User,
-    Hours: Hours,
-    Invite: Invite
+    Address:        Address,
+    User:           User,
+    Hours:          Hours,
+    Invite:         Invite
 };

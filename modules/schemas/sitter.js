@@ -1,7 +1,8 @@
 let mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
-extend = require('mongoose-schema-extend');
-let base = require('./base.js');
+    Schema = mongoose.Schema,
+    Sitter,
+    base = require('./base.js');
+    extend = require('mongoose-schema-extend');
 
 let Review = new Schema({
     parentID:       {type:Number, required: true},
@@ -11,23 +12,26 @@ let Review = new Schema({
     rating:         {type:Number, required: true}
 });
 
-let Sitter = base.User.extend({
-    rating:                      {type: Number, required: true, default: 0},
-    education:        	     [String],
-    personalityScore: {type: Number, required: true},
-    minAge:                  {type: Number, required: true, default: 0},
-    maxAge:                 {type: Number, required: true},
-    currencyType:      String,
-    hourFee:                {type: Number, required: true},
+let sitter = base.User.extend({
+    address:         base.Address,
+    rating:          {type: Number, required: true, default: 0},
+    education:       [String],
+    personalityScore:{type: Number, required: true},
+    minAge:          {type: Number, required: true, default: 0},
+    maxAge:          {type: Number, required: true},
+    currencyType:    String,
+    hourFee:         {type: Number, required: true},
     workingHours:    base.Hours,
-    availableNow:      {type: Boolean, required: true},
-    experience:           {type: Number, required: true, default: 0},
-    hobbies:                 [String],
-    mobility:                {type: Number, required: true, default: false},
-    specialNeeds:       [String],
-    review:                   [Review]
+    availableNow:    {type: Boolean, required: true},
+    experience:      {type: Number, required: true, default: 0},
+    hobbies:         [String],
+    mobility:        {type: Number, required: true, default: false},
+    specialNeeds:    [String],
+    review:          [Review],
+    invites:         [base.Invite]
 },{collection:"sitters"});
 
+Sitter = mongoose.model('Sitter', sitter);
 module.exports = {
-    Sitter: Sitter
+    Sitter:    sitter
 };
