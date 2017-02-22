@@ -22,7 +22,15 @@ app.use(function(req, res, next) {
 });
 
 app.get('/', controller.index);
-app.post('/test', controller.test);
+
+app.post('/parent/create', controller.createParent);
+app.post('/parent/update', controller.updateParent);
+app.post('/parent/delete', controller.deleteParent);
+app.post('/parent/get', controller.getParent);
+app.post('/sitter/create', controller.createSitter);
+app.post('/sitter/update', controller.updateSitter);
+app.post('/sitter/delete', controller.deleteSitter);
+app.post('/sitter/get', controller.getSitter);
 
 app.get('*', (req,res,next) => {
     let err = new Error();
@@ -39,7 +47,7 @@ app.use((err,req,res) => {
     }
 });
 
-
 app.listen(port, () => {  // app listen port
     console.log('listening on port '+port);
 });
+

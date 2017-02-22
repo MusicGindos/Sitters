@@ -3,7 +3,7 @@ let mongoose = require('mongoose'),
     Parent;
     extend = require('mongoose-schema-extend');
 let base = require('./base.js');
-let sitter = require('./sitter.js');
+//let sitter = require('./sitter.js');
 
 let Child = new Schema({
     allergies:      {type:[String], lowercase: true},
@@ -20,12 +20,12 @@ let parent = base.User.extend({
     children:       Child,
     maxPrice:       Number,
     matches: [{
-        sitter:     sitter.Sitter, //TODO: fix this
+        //sitter:     sitter.Sitter, //TODO: fix this
         matchScore: Number
     }],
     address:        base.Address,
     invites:        [base.Invite]
-},{collection:"parents"});
+},{collection:"parents",_id : false});
 
 Parent = mongoose.model('Parent', parent);
 module.exports = Parent;

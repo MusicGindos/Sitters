@@ -8,7 +8,7 @@ let Address = new Schema({
     houseNumber:{type: Number, min: 0},
     latitude:   {type: Number, default: 0},
     longitude:  {type: Number, default: 0}
-});
+},{_id : false});
 
 let Hours = new Schema({
     sunday:{
@@ -39,9 +39,14 @@ let Hours = new Schema({
         start:  {type:String, default:"0"},
         finish: {type:String, default:"0"}
     }
-});
+},{_id : false});
 
 let Invite = new Schema({
+    _id: {
+        type: String,
+        default: shortid.generate,
+        unique: true
+    },
     address:    {type:Address, required: true},
     startTime:  {type:Date, required: true},
     endTime:    {type:Date, required: true},
@@ -58,7 +63,8 @@ let Invite = new Schema({
 let User = new Schema({
     _id: {
         type: String,
-        default: shortid.generate
+        default: shortid.generate,
+        unique: true
     },
     email:          {type: String, required: true, unique: true},
     name :          {type:String, required: true},

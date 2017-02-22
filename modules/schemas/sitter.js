@@ -16,9 +16,9 @@ let sitter = base.User.extend({
     address:         base.Address,
     rating:          {type: Number, required: true, default: 0},
     education:       [String],
-    personalityScore:{type: Number, required: true},
+    personalityScore:Number,
     minAge:          {type: Number, required: true, default: 0},
-    maxAge:          {type: Number, required: true},
+    maxAge:          {type: Number, required: true, default: 12},
     currencyType:    String,
     hourFee:         {type: Number, required: true},
     workingHours:    base.Hours,
@@ -32,6 +32,4 @@ let sitter = base.User.extend({
 },{collection:"sitters"});
 
 Sitter = mongoose.model('Sitter', sitter);
-module.exports = {
-    Sitter:    sitter
-};
+module.exports = Sitter;
