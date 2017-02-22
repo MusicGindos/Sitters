@@ -1,6 +1,7 @@
 let mongoose = require('mongoose'),
     Schema = mongoose.Schema,
-    shortid = require('shortid');
+    shortid = require('shortid'),
+    uuid = require('uuid');
 
 let Address = new Schema({
     city:       String,
@@ -44,7 +45,7 @@ let Hours = new Schema({
 let Invite = new Schema({
     _id: {
         type: String,
-        default: shortid.generate,
+        default: uuid.v1(),
         unique: true
     },
     address:    {type:Address, required: true},

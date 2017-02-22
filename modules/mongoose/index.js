@@ -2,6 +2,7 @@
 let mongoose = require('mongoose'),
     Parent = require('../schemas/parent'),
     Sitter = require('../schemas/sitter'),
+    base = require('../schemas/base'),
     db,
     config = {
         mongoUrl:'mongodb://sitter:123456@ds157499.mlab.com:57499/sitter'
@@ -18,6 +19,7 @@ let status = (res,status) =>{
 }
 
 console.log('connection');
+
 //The server option auto_reconnect is defaulted to true
 let options = {
     server: {
@@ -98,7 +100,7 @@ exports.getParent = (req,res) =>{
 };
 
 exports.sendInvite = (req,res,next) =>{
- // TODO: insert into parent + sitter db
+ //TODO: insert into parent + sitter db
 };
 
 exports.writeReview = (req,res,next) =>{
