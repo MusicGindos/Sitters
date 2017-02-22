@@ -1,6 +1,7 @@
 'use strict';
 
-let mongoose = require('../modules/mongoose');
+let mongoose        = require('../modules/mongoose'),
+    personalityTest = require('../modules/personalityTest');
 
 let error = (next, msg, status) => {
     let err = new Error();
@@ -21,9 +22,7 @@ let error = (next, msg, status) => {
 
 
 exports.index = (req, res, next) => {
-    console.log(req.body);
-    //mongoose.insertParent(req,res,next);
-        //route(req, res, next, 'index.html');
+
 };
 
 exports.createParent = (req, res, next) => {
@@ -40,6 +39,14 @@ exports.deleteParent = (req, res, next) => {
 
 exports.getParent = (req, res, next) => {
     mongoose.getParent(req,res,next);
+};
+
+exports.sendInvite = (req, res, next) => {
+    mongoose.sendInvite(req,res,next);
+};
+
+exports.sendReview = (req, res, next) => {
+    mongoose.sendReview(req,res,next);
 };
 
 exports.createSitter = (req, res, next) => {
@@ -59,5 +66,9 @@ exports.getSitter = (req, res, next) => {
 };
 
 exports.createPersonalityTest = (req,res,next) =>{
+    personalityTest.getQuestions(req,res,next);
+};
 
+exports.computePersonalityScore = (req,res,next) =>{
+    personalityTest.computePersonalityScore(req,res,next);// TODO: when client is up, change this to req.body
 };
