@@ -24,15 +24,17 @@ app.use(function(req, res, next) {
 app.get('/', controller.index);
 
 app.post('/parent/create', controller.createParent);
-app.post('/parent/update', controller.updateParent);
-app.post('/parent/delete', controller.deleteParent);
+app.puts('/parent/update', controller.updateParent);
+app.delete('/parent/delete', controller.deleteParent);
 app.post('/parent/get', controller.getParent);
 app.post('/parent/invite', controller.sendInvite);
 app.post('/parent/review', controller.sendReview);
 app.post('/sitter/create', controller.createSitter);
 app.post('/sitter/update', controller.updateSitter);
-app.post('/sitter/delete', controller.deleteSitter);
+app.delete('/sitter/delete', controller.deleteSitter);
 app.post('/sitter/get', controller.getSitter);
+
+//for debug only
 app.get('/sitter/personalityTest', controller.createPersonalityTest);
 app.post('/sitter/computePersonalityTest', controller.computePersonalityScore);
 

@@ -190,7 +190,7 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
 };
 
 exports.calculateMatchingScore = function(){
-    data = jsonfile.readFileSync(localJSONPath);
+    data = jsonfile.readFileSync(localJSONPath);// TODO: local db only
     matchScore = computeMatchScore(data.parent,data.sitter,null,distance);
     if(matchScore == 0){
         return {"match_score":0};  // no match

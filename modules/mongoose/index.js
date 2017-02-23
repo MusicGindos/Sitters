@@ -16,7 +16,7 @@ let error = (res,error) => {
 
 let status = (res,status) =>{
     res.status(200).json({'status':status});
-}
+};
 
 console.log('connection');
 
@@ -97,14 +97,6 @@ exports.getParent = (req,res) =>{
             res.status(200).json(doc);
         }
     });
-};
-
-exports.sendInvite = (req,res,next) =>{
- //TODO: insert into parent + sitter db
-};
-
-exports.writeReview = (req,res,next) =>{
-//TODO: insert into sitter db only
 };
 
 //Sitter

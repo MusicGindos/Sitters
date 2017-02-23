@@ -52,17 +52,33 @@ exports.sendReview = (req, res, next) => {
 
 exports.createSitter = (req, res, next) => {
     mongoose.createSitter(req,res,next);
+    //suggestion module
 };
 
 exports.updateSitter = (req, res, next) => {
     mongoose.updateSitter(req, res, next);
+    //suggestion module
 };
 
 exports.deleteSitter = (req, res, next) => {
     mongoose.deleteSitter(req,res,next);
+    //suggestion module
 };
 
 exports.getSitter = (req, res, next) => {
     mongoose.getSitter(req,res,next);
 };
 
+exports.sendInvite = (req,res,next) =>{
+    //get parent
+    //get sitter
+    //set parent
+    //set sitter
+    //TODO: insert into parent + sitter db
+};
+
+exports.writeReview = (req,res,next) =>{
+    //get sitter
+    //set sitter
+//TODO: insert into sitter db only
+};
