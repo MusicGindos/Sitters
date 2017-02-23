@@ -1,7 +1,8 @@
 'use strict';
 
 let mongoose        = require('../modules/mongoose'),
-    personalityTest = require('../modules/personalityTest');
+    personalityTest = require('../modules/personalityTest'),
+    fs              = require('fs');
 
 let error = (next, msg, status) => {
     let err = new Error();
@@ -9,16 +10,16 @@ let error = (next, msg, status) => {
     err.message = msg;
     next(err);
 };
-//
-// var route = (req, res, next, page) => {
-//     fs.readFile(clientRootPath + page, (err, html) => {
-//         if (err) {
-//             error(next, err.message, 500);
-//         }
-//         res.write(html);
-//         res.end();
-//     });
-// };
+
+let route = (req, res, next, page) => {
+    fs.readFile(page, (err, html) => {
+        if (err) {
+            error(next, err.message, 500);
+        }
+        res.write(html);
+        res.end();
+    });
+};
 
 
 exports.index = (req, res, next) => {

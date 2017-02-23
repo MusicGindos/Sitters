@@ -5,5 +5,5 @@ exports.createPersonalityTest = (req,res,next) =>{
 };
 
 exports.computePersonalityScore = (req,res,next) =>{
-    personalityTest.computePersonalityScore(req,res,next);// TODO: when client is up, change this to req.body
+    personalityTest.computePersonalityScore(req,res,next);
 };

@@ -82,15 +82,12 @@ exports.getQuestions = (req,res) => {
 };
 
 exports.computePersonalityScore = () => {// TODO: when client is up, pass questions
-    console.log("hello");
     let score = 0;
     if(!questions.isEmpty){
-        //console.log("full");
         questions.forEach(function(question){
             console.log(score);
             switch(question.method){
                 case "normal":  // the score is 20 to 100 from 1 - 5
-                    //console.log(parseInt(question.choice) * 20);
                     score += (parseInt(question.choice) * 20);
                     break;
                 case "reverse":  // the score is 100 to 20 from 5 - 1

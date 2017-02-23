@@ -1,6 +1,6 @@
 'use strict';
 
-var express		    = require('express'),
+let express		    = require('express'),
     fs			    = require('fs'),
     _               = require('lodash'),
     localJSONPath   = "data/data.json",
@@ -25,8 +25,7 @@ var express		    = require('express'),
 
 let computeSync = function(origin,destination,callback){  // google-distance is async and we need it to be sync so we use wrapper with flag
     googleDistance.apiKey = "AIzaSyBwP7ZYyCO86H41nE-E5eHYPCDir9yBpc0";  // google-distance apikey for make more calls
-    googleDistance.get(  // compute distance between 2 locations, can be street-houseNumber-city OR latitude/longitude
-        {
+    googleDistance.get({  // compute distance between 2 locations, can be street-houseNumber-city OR latitude/longitude
             origin: origin,
             destination: destination
         },
@@ -90,7 +89,7 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
                 callback(0);
                 return;
             }
-            // sitter don't have the speicalNeed that the child need and the match score is 0
+            // sitter don't have the specialNeed that the child need and the match score is 0
         }
     }
     distance = distance.distance.split(' ');
