@@ -2,7 +2,8 @@
 
 let mongoose        = require('../modules/mongoose'),
     personalityTest = require('../modules/personalityTest'),
-    fs              = require('fs');
+    fs              = require('fs'),
+    suggest         = require('../modules/suggestions');
 
 let error = (next, msg, status) => {
     let err = new Error();
@@ -52,17 +53,17 @@ exports.sendReview = (req, res, next) => {
 
 exports.createSitter = (req, res, next) => {
     mongoose.createSitter(req,res,next);
-    //suggestion module
+    suggest.newNotification();
 };
 
 exports.updateSitter = (req, res, next) => {
     mongoose.updateSitter(req, res, next);
-    //suggestion module
+    suggest.UpdateNotification();
 };
 
 exports.deleteSitter = (req, res, next) => {
     mongoose.deleteSitter(req,res,next);
-    //suggestion module
+    suggest.deleteNotification();
 };
 
 exports.getSitter = (req, res, next) => {

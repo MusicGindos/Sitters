@@ -76,7 +76,7 @@ let User = new Schema({
     age:            {type:Number,required: true, min: 0},
     location:       String,
     languages:      [String],
-    timezone:       String,
+    timezone:       String
 });
 
 module.exports = {

@@ -1,9 +1,9 @@
 let mongoose = require('mongoose'),
     Schema = mongoose.Schema,
-    Parent;
-    extend = require('mongoose-schema-extend');
-let base = require('./base.js');
-//let sitter = require('./sitter.js');
+    Parent,
+    extend = require('mongoose-schema-extend'),
+    base = require('./base.js'),
+    sitter = require('./sitter.js');
 
 let Child = new Schema({
     allergies:      {type:[String], lowercase: true},
@@ -15,12 +15,19 @@ let Child = new Schema({
     name:           {type:String, required: true}
 });
 
+let notification = new Schema({
+    message: String,
+    new: Boolean,
+    time: Date
+});
+
 let parent = base.User.extend({
     partner:        base.User,
     children:       Child,
     maxPrice:       Number,
+    notifications: [notification],
     matches: [{
-        //sitter:     sitter.Sitter, //TODO: fix this
+        sitter:     sitter.Sitter, //TODO: fix this
         matchScore: Number
     }],
     address:        base.Address,
@@ -28,4 +35,7 @@ let parent = base.User.extend({
 },{collection:"parents",_id : false});
 
 Parent = mongoose.model('Parent', parent);
-module.exports = Parent;
+module.exports = {
+    Parent: Parent,
+    Notification: notification
+};

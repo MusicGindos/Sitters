@@ -1,7 +1,7 @@
 let mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     Sitter,
-    base = require('./base.js');
+    base = require('./base.js'),
     extend = require('mongoose-schema-extend');
 
 let Review = new Schema({
