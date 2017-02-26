@@ -1,6 +1,6 @@
 'use strict';
 
-var matcher         = require('../matcher'),
+let matcher         = require('../matcher'),
     forEach         = require("lodash").forEach,
     db              = require('../mongoose'),
     notification    = require('../schemas/parent').Notification;

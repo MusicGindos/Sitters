@@ -1,7 +1,7 @@
 'use strict';
 let mongoose = require('mongoose'),
-    Parent = require('../schemas/parent'),
-    Sitter = require('../schemas/sitter'),
+    Parent = require('../schemas/parent').Parent,
+    Sitter = require('../schemas/sitter').sitterModel,
     base = require('../schemas/base'),
     db,
     config = {
