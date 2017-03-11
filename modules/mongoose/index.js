@@ -9,8 +9,9 @@ let mongoose = require('mongoose'),
     };
 
 let error = (res,error) => {
+    console.log(error.message);
     res.status(400).json({
-        "error": error.message
+        'error': error.message
     });
 };
 

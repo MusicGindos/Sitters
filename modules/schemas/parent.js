@@ -60,7 +60,7 @@ let Invite = new Schema({
 let Child = new Schema({
     allergies:      {type:[String], lowercase: true},
     specialNeeds:   {type:[String], lowercase: true},
-    Hobbies:        {type:[String], lowercase: true},
+    hobbies:        {type:[String], lowercase: true},
     schoolAddress:  Address,
     expertise:      {type:[String], lowercase: true},
     age:            {type:Number,required: true},

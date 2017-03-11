@@ -90,6 +90,7 @@ let sitter = new Schema({
     hobbies:         [String],
     mobility:        {type: Number, required: true, default: false},
     specialNeeds:    [String],
+    expertise:       [String],
     review:          [Review],
     invites:         [Invite]
 },{collection:"sitters"},{_id : false});
