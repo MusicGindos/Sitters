@@ -81,7 +81,7 @@ let Partner = new Schema({
 },{_id : false});
 
 let parent = new Schema({
-    _id:            {type: mongoose.Schema.ObjectId, default: mongoose.Types.ObjectId},
+    _id:            {type: String},
     email:          {type: String, required: true},
     name :          {type:String, required: true},
     joinedTime:     {type: Date, default: Date.now},
