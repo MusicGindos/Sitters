@@ -4,6 +4,7 @@ let mongoose = require('mongoose'),
     Sitter = require('../schemas/sitter').sitterModel,
     base = require('../schemas/base'),
     db,
+    matcher = require('./../matcher'),
     config = {
         mongoUrl:'mongodb://sitter:123456@ds157499.mlab.com:57499/sitter'
     };
@@ -89,12 +90,34 @@ exports.deleteParent = (req,res) =>{
     });
 };
 
+exports.getMatches = (req,res) =>{
+    Sitter.find(function (err, sitters) {
+        if (err){
+            error(res,err);
+        }
+        else {
+            let resultSitters = [];
+            sitters.forEach(function(sitter){
+                let match = matcher.calculateMatchingScore(req.body,sitter._doc);
+                if(match.match_score != 0){
+                    sitter = sitter._doc;
+                    sitter.matchScore = match.match_score;
+                }
+                    resultSitters.push(sitter);
+            });
+            res.status(200).json(resultSitters);
+        }
+    });
+};
+
 exports.getParent = (req,res) =>{
     Parent.findOne().where('email', req.body.email).exec(function (err, doc) {
         if (err){
             error(res,err);
         }
         else {
+            let matches = getMatches(doc);
+            console.log(matches);
             res.status(200).json(doc);
         }
     });
@@ -140,6 +163,17 @@ exports.deleteSitter = (req,res) =>{
 };
 
 exports.getSitter = (req,res) =>{
+    Sitter.findOne().where('_id', req.body._id).exec(function (err, doc) {
+        if (err){
+            error(res,err);
+        }
+        else {
+            res.status(200).json(doc);
+        }
+    });
+};
+
+exports.getSitters = (req,res) =>{
     Sitter.findOne().where('_id', req.body._id).exec(function (err, doc) {
         if (err){
             error(res,err);
