@@ -3,7 +3,8 @@ var express		= require('express'),
     controller 	= require('./server'),
     cors 		= require('cors'),
     bodyParser 	= require('body-parser'),
-    port 		= process.env.PORT || 4000,
+    port 		= 4000,
+    // port 		= process.env.PORT || 4000,
     app 		= express();
 
 //server config
@@ -27,6 +28,8 @@ app.post('/parent/create', controller.createParent);
 app.post('/parent/update', controller.updateParent);
 app.delete('/parent/delete', controller.deleteParent);
 app.post('/parent/get', controller.getParent);
+app.post('/parent/getMatches', controller.getMatches);
+app.post('/parent/getSitters', controller.getSitters);
 app.post('/sitter/create', controller.createSitter);
 app.post('/sitter/update', controller.updateSitter);
 app.delete('/sitter/delete', controller.deleteSitter);

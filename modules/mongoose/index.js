@@ -90,22 +90,18 @@ exports.deleteParent = (req,res) =>{
     });
 };
 
+function isMatch(parent, sitter) {
+    if(matcher.calculateMatchingScore(parent, sitter).match_score > 0) return sitter;
+}
+
 exports.getMatches = (req,res) =>{
     Sitter.find(function (err, sitters) {
         if (err){
             error(res,err);
         }
         else {
-            let resultSitters = [];
-            sitters.forEach(function(sitter){
-                let match = matcher.calculateMatchingScore(req.body,sitter._doc);
-                if(match.match_score != 0){
-                    sitter = sitter._doc;
-                    sitter.matchScore = match.match_score;
-                }
-                    resultSitters.push(sitter);
-            });
-            res.status(200).json(resultSitters);
+            const parent = req.body;
+            res.status(200).json(sitters.filter(sitter => isMatch(parent, sitter)));
         }
     });
 };
@@ -116,8 +112,6 @@ exports.getParent = (req,res) =>{
             error(res,err);
         }
         else {
-            let matches = getMatches(doc);
-            console.log(matches);
             res.status(200).json(doc);
         }
     });
@@ -174,12 +168,12 @@ exports.getSitter = (req,res) =>{
 };
 
 exports.getSitters = (req,res) =>{
-    Sitter.findOne().where('_id', req.body._id).exec(function (err, doc) {
+    Sitter.find(function (err, sitters) {
         if (err){
             error(res,err);
         }
         else {
-            res.status(200).json(doc);
+            res.status(200).json(sitters);
         }
     });
 };

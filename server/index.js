@@ -43,6 +43,10 @@ exports.getParent = (req, res, next) => {
     mongoose.getParent(req,res,next);
 };
 
+exports.getMatches = (req, res, next) => {
+    mongoose.getMatches(req,res,next);
+};
+
 exports.sendInvite = (req, res, next) => {
     mongoose.sendInvite(req,res,next);
 };
@@ -69,6 +73,10 @@ exports.deleteSitter = (req, res, next) => {
 
 exports.getSitter = (req, res, next) => {
     mongoose.getSitter(req,res,next);
+};
+
+exports.getSitters = (req, res, next) => {
+    mongoose.getSitters(req,res,next);
 };
 
 exports.sendInvite = (req,res,next) =>{
