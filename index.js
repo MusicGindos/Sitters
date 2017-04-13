@@ -50,6 +50,6 @@ app.use((err,req,res) => {
 });
 
 app.listen(port, () => {  // app listen port
-    console.log('listening on port '+port);
+    console.log('listening on port '+ port);
 });
 

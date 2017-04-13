@@ -91,7 +91,8 @@ exports.deleteParent = (req,res) =>{
 };
 
 function isMatch(parent, sitter) {
-    if(matcher.calculateMatchingScore(parent, sitter).match_score > 0) return sitter;
+    sitter.matchScore = matcher.calculateMatchingScore(parent, sitter).match_score;
+    if(sitter.matchScore > 0) return sitter;
 }
 
 exports.getMatches = (req,res) =>{
