@@ -102,7 +102,7 @@ exports.getMatches = (req,res) =>{
         }
         else {
             const parent = req.body;
-            res.status(200).json(sitters.filter(sitter => isMatch(parent, sitter)));
+            res.status(200).json(sitters.filter(sitter => isMatch(parent, sitter._doc)));
         }
     });
 };
