@@ -178,3 +178,23 @@ exports.getSitters = (req,res) =>{
         }
     });
 };
+
+exports.getUser = (req,res) =>{
+    Parent.findOne().where('_id', req.body._id).exec(function (err, parent) {
+        if (err || err === null) {
+            //error(res,err);
+            Sitter.findOne().where('_id', req.body._id).exec(function (err, sitter) {
+                if (err || err === null) { // the user doesn't exists
+                    res.status(200).json({'error': "user doesn't exist"});
+                }
+                else {
+                    res.status(200).json(sitter);
+                }
+            });
+        }
+        else {
+            res.status(200).json(parent);
+        }
+    });
+
+};

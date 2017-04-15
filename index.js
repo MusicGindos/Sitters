@@ -3,7 +3,7 @@ var express		= require('express'),
     controller 	= require('./server'),
     cors 		= require('cors'),
     bodyParser 	= require('body-parser'),
-    port 		= process.env.PORT || 4000,
+    port 		= process.env.PORT || 4444,
     app 		= express();
 
 //server config
@@ -33,6 +33,7 @@ app.post('/sitter/create', controller.createSitter);
 app.post('/sitter/update', controller.updateSitter);
 app.delete('/sitter/delete', controller.deleteSitter);
 app.post('/sitter/get', controller.getSitter);
+app.post('/user/getUser', controller.getUser);
 
 app.get('*', (req,res,next) => {
     let err = new Error();

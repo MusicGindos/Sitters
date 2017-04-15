@@ -43,6 +43,11 @@ exports.getParent = (req, res, next) => {
     mongoose.getParent(req,res,next);
 };
 
+exports.getUser = (req, res, next) => {
+    mongoose.getUser(req,res,next);
+};
+
+
 exports.getMatches = (req, res, next) => {
     mongoose.getMatches(req,res,next);
 };
