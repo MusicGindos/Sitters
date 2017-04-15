@@ -58,10 +58,8 @@ let Invite = new Schema({
 });
 
 let Child = new Schema({
-    allergies:      {type:[String], lowercase: true},
     specialNeeds:   {type:[String], lowercase: true},
     hobbies:        {type:[String], lowercase: true},
-    schoolAddress:  Address,
     expertise:      {type:[String], lowercase: true},
     age:            {type:Number,required: true},
     name:           {type:String, required: true}
@@ -89,17 +87,12 @@ let parent = new Schema({
     profilePicture: String,
     coverPhoto:     String,
     age:            {type:Number,required: true, min: 0},
-    location:       String,
     languages:      [String],
     timezone:       String,
     partner:        Partner,
     children:       Child,
     maxPrice:       Number,
     notifications: [notification],
-    matches: [{
-        sitter:     sitter, //TODO: fix this
-        matchScore: Number
-    }],
     address:        Address,
     invites:        [Invite]
 },{collection:"parents"},{_id : false});

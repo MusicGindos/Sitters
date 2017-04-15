@@ -88,7 +88,7 @@ let sitter = new Schema({
     availableNow:    {type: Boolean, required: true},
     experience:      {type: Number, required: true, default: 0},
     hobbies:         [String],
-    mobility:        {type: Number, required: true, default: false},
+    mobility:        {type: Boolean, required: true, default: false},
     specialNeeds:    [String],
     expertise:       [String],
     review:          [Review],
