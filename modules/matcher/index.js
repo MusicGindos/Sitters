@@ -82,7 +82,7 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
         callback(0);
         return;
     }
-    if(parent.children.specialNeeds.length != 0){
+    if(typeof parent.children.specialNeeds !== "undefined"){
         for (let i = 0, len = parent.children.specialNeeds.length; i < len; i++) {
             if (_.indexOf(sitter.specialNeeds, parent.children.specialNeeds[i]) == -1){
                 finish = false;
@@ -113,7 +113,7 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     else if(sitter.experience >= 0)
         experienceScore = 50;
 
-    if(parent.children.hobbies.length > 0){  // calculate hobbies match of the sitter with child
+    if(typeof parent.children.hobbies !== "undefined" ){  // calculate hobbies match of the sitter with child
         _.forEach(parent.children.hobbies, function(hobbie) {
             if(_.indexOf(sitter.hobbies,hobbie) > -1){ // check if sitter have the hobbie
                 hobbiesScore +=  (100 / parent.children.hobbies.length);  // add the fraction of 1 match from the length of the hobbie array
@@ -124,7 +124,7 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
         hobbiesScore = -1;  // children don't have any hobbies
     }
 
-    if(parent.children.expertise.length > 0){
+    if(typeof parent.children.expertise !== "undefined"){
         _.forEach(parent.children.expertise, function(exp) {
             if(_.indexOf(sitter.expertise,exp) > -1){ // check if sitter have the expertise
                 knowledgeScore +=  (100 / parent.children.expertise.length);   // add the fraction of 1 match from the length of the expertise array
@@ -189,9 +189,10 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     callback(generalScore);
 };
 
-exports.calculateMatchingScore = function(parent, sitter){
+exports.calculateMatchingScore = function(parent,sitter){
+    sitter.address = sitter.address._doc;
     // data = jsonfile.readFileSync(localJSONPath);// TODO: local db only
-    matchScore = computeMatchScore(parent,sitter,null,0);
+    matchScore = computeMatchScore(parent,sitter,null,distance);
     if(matchScore == 0){
         return {"match_score":0};  // no match
     }
