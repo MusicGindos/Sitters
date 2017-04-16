@@ -43,18 +43,22 @@ let Hours = new Schema({
 },{_id : false});
 
 let Invite = new Schema({
-    _id:            {type: mongoose.Schema.ObjectId, default: mongoose.Types.ObjectId},
+    _id:         {type: String},
     address:    {type:Address, required: true},
-    startTime:  {type:Date, required: true},
-    endTime:    {type:Date, required: true},
-    date:       {type:Date, required: true},
+    startTime:  {type:String, required: true},
+    endTime:    {type:String, required: true},
+    date:       {type:String, required: true},
     status:     {type:String, default:"waiting"},
+    wasRead: Boolean,
+    sitterID:   {type:String, required: true},
+    parentID:   {type:String, required: true},
     recurring:  {
         workingHours: Hours,
         until: Date
     },
-    sitterID:   {type:Number, required: true},
-    parentID:   {type:Number, required: true}
+    notes: String,
+    sitterName: String,
+    sitterImage: String
 });
 
 let Child = new Schema({

@@ -85,6 +85,7 @@ exports.getSitters = (req, res, next) => {
 };
 
 exports.sendInvite = (req,res,next) =>{
+    mongoose.sendInvite(req,res,next);
     //get parent
     //get sitter
     //set parent

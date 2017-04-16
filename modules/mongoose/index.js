@@ -198,3 +198,41 @@ exports.getUser = (req,res) =>{
     });
 
 };
+
+exports.sendInvite = (req,res,next) =>{
+    Parent.findOne().where('_id', req.body.parentID).exec(function (err, parent) {
+        if (err) {
+            error(res,err);
+        }
+        else {
+            parent._doc.invites.push(req.body);
+            //console.log(parent);
+            // res.status(200).json(parent);
+            parent.update({$set: parent}).exec(function (err){
+                if (err) {
+                    error(res,err);
+                }
+                else {
+                    //status(res,"invite created");
+                    Sitter.findOne().where('_id', req.body.sitterID).exec(function (err, sitter) {
+                        if (err) {
+                            error(res,err);
+                        }
+                        else {
+                            sitter._doc.invites.push(req.body);
+                            sitter.update({$set: sitter}).exec(function (err) {
+                                if (err) {
+                                    error(res, err);
+                                }
+                                else {
+                                    status(res,"invite created in sitter and parent DB");
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+
+};

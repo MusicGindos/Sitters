@@ -42,18 +42,22 @@ let Hours = new Schema({
 },{_id : false});
 
 let Invite = new Schema({
-    _id:            {type: mongoose.Schema.ObjectId, default: mongoose.Types.ObjectId},
+    _id:         {type: String},
     address:    {type:Address, required: true},
-    startTime:  {type:Date, required: true},
-    endTime:    {type:Date, required: true},
-    date:       {type:Date, required: true},
+    startTime:  {type:String, required: true},
+    endTime:    {type:String, required: true},
+    date:       {type:String, required: true},
     status:     {type:String, default:"waiting"},
+    wasRead: Boolean,
+    sitterID:   {type:String, required: true},
+    parentID:   {type:String, required: true},
     recurring:  {
         workingHours: Hours,
         until: Date
     },
-    sitterID:   {type:Number, required: true},
-    parentID:   {type:Number, required: true}
+    notes: String,
+    sitterName: String,
+    sitterImage: String
 });
 
 let Review = new Schema({
@@ -77,7 +81,6 @@ let sitter = new Schema({
     languages:      [String],
     timezone:       String,
     address:         Address,
-    rating:          {type: Number, required: true, default: 0},
     education:       [String],
     personalityScore:Number,
     minAge:          {type: Number, required: true, default: 0},
@@ -91,7 +94,7 @@ let sitter = new Schema({
     mobility:        {type: Boolean, required: true, default: false},
     specialNeeds:    [String],
     expertise:       [String],
-    review:          [Review],
+    reviews:          [Review],
     invites:         [Invite]
 },{collection:"sitters"},{_id : false});
 
