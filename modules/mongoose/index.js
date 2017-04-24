@@ -91,81 +91,10 @@ exports.deleteParent = (req,res) =>{
     });
 };
 
-
-function calculateMatches(parent,sitters){
-    let sittersResult = [];
-    let tempSitter = {} ;
-    let index = 0;
-    let sitter0 = {};
-    let sitter1 = {};
-    let sitter2 = {};
-    let sitter3 = {};
-    let sitter4 = {};
-
-    let s = [];
-    sitters.forEach(function(sitter){
-        s.push(sitter._doc);
-    });
-    for(let index = 0; index < s.length; index++){
-        //let match = matcher.calculateMatchingScore(parent, s[index]);
-        if(index === 0){
-            sitter0 = s[index];
-            sitter0['match'] =  clone(matcher.calculateMatchingScore(parent, s[index]));
-        }
-        else if(index === 1){
-            sitter1 = s[index];
-            sitter1['match'] = clone(matcher.calculateMatchingScore(parent, s[index]));
-        }
-        else if(index === 2){
-            sitter2 = s[index];
-            sitter2['match'] = clone(matcher.calculateMatchingScore(parent, s[index]));
-        }
-        else if(index === 3){
-            sitter3 = s[index];
-            sitter3['match'] = clone(matcher.calculateMatchingScore(parent, s[index]));
-        }
-        else if(index === 4){
-            sitter4 = s[index];
-            sitter4['match'] = clone(matcher.calculateMatchingScore(parent, s[index]));
-        }
-
-        // s[index]['match'] = match;
-        // console.log(s[index]);
-        // if(tempSitter.match.matchScore > 0) {
-        //     sittersResult[index] = tempSitter;
-        // }
-        // tempSitter = {};
-    }
-    console.log(sitter0['match']);
-    console.log(sitter1['match']);
-    console.log(sitter2['match']);
-    console.log(sitter3['match']);
-    console.log(sitter4['match']);
-    // sitters.forEach(function(sitter){
-    //     tempSitter = sitter._doc;
-    //     tempSitter.match = matcher.calculateMatchingScore(parent, tempSitter);
-    //     if(tempSitter.match.matchScore > 0){
-    //         sittersResult[index] = tempSitter;
-    //         index ++;
-    //         sittersResult.push(tempSitter);
-    //         tempSitter = {};
-    //     }
-    // });
-    sittersResult[0] = sitter0;
-    sittersResult[1] = sitter1;
-    sittersResult[2] = sitter2;
-    sittersResult[3] = sitter3;
-    sittersResult[4] = sitter4;
-    return sittersResult;
-}
-
 function isMatch(parent, sitter) {
     sitter.match = clone(matcher.calculateMatchingScore(parent, sitter));
-    // sitter.locationScore = matcher.calculateMatchingScore(parent, sitter).locationScore;
     if(sitter.match.matchScore > 0) return sitter.match;
 }
-
-
 
 exports.getMatches = (req,res) =>{
     Sitter.find(function (err, sitters) {
@@ -175,7 +104,6 @@ exports.getMatches = (req,res) =>{
         else {
             const parent = req.body;
             res.status(200).json(sitters.filter(sitter => isMatch(parent, sitter._doc)));
-            // res.status(200).json(calculateMatches(parent,sitters));
         }
     });
 };
