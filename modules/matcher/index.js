@@ -18,10 +18,11 @@ let express		    = require('express'),
     experienceScore = null,
     hobbiesScore    = null,
     knowledgeScore  = null,
-    bonusScore      = 2.5,
+    bonusScore      = 5,
     score           = 0,
     divide          = 0,
-    tempScore       = 0;
+    tempScore       = 0,
+    matchData       = {};
 
 let computeSync = function(origin,destination,callback){  // google-distance is async and we need it to be sync so we use wrapper with flag
     googleDistance.apiKey = "AIzaSyBwP7ZYyCO86H41nE-E5eHYPCDir9yBpc0";  // google-distance apikey for make more calls
@@ -101,7 +102,7 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     }
     if(locationScore < 0)  // if the sitter is more than 50 kilometer from thr child address
         locationScore = 0;
-
+    matchData.location = { label: 'Location', value: Math.round(locationScore)}; // send data to client
     if(sitter.experience >= 4)  // calculate experience by years
         experienceScore = 100;
     else if(sitter.experience >= 3)
@@ -113,23 +114,26 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     else if(sitter.experience >= 0)
         experienceScore = 50;
 
-    if(typeof parent.children.hobbies !== "undefined" ){  // calculate hobbies match of the sitter with child
+    matchData.experience = { label: 'Experience', value: Math.round(experienceScore)}; // send data to client
+    if(typeof parent.children.hobbies !== "undefined" && parent.children.hobbies.length > 0){  // calculate hobbies match of the sitter with child
         _.forEach(parent.children.hobbies, function(hobbie) {
             if(_.indexOf(sitter.hobbies,hobbie) > -1){ // check if sitter have the hobbie
                 hobbiesScore +=  (100 / parent.children.hobbies.length);  // add the fraction of 1 match from the length of the hobbie array
             }
         });
+        //matchData.hobbies = { label: 'Hobbies', value: Math.round(hobbiesScore)}; // send data to client
     }
     else{
         hobbiesScore = -1;  // children don't have any hobbies
     }
 
-    if(typeof parent.children.expertise !== "undefined"){
+    if(typeof parent.children.expertise !== "undefined" && parent.children.expertise.length > 0){
         _.forEach(parent.children.expertise, function(exp) {
             if(_.indexOf(sitter.expertise,exp) > -1){ // check if sitter have the expertise
                 knowledgeScore +=  (100 / parent.children.expertise.length);   // add the fraction of 1 match from the length of the expertise array
             }
         });
+        //matchData.expertise =  { label: 'Expertise', value: Math.round(hobbiesScore)}; // send data to client
     }
     else{
         knowledgeScore = -1;  // children don't have any expertise
@@ -146,6 +150,14 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
             divide++;
             score += hobbiesScore;
         }
+        _.forIn(matchData, function(value, key) {
+            if(key !== 'matchScore')
+                value.value = (value.value / divide);
+        });
+        if(hobbiesScore !== -1)
+            matchData.hobbies = { label: 'Hobbies', value: Math.round(hobbiesScore)}; // send data to client
+        if(knowledgeScore !== -1)
+            matchData.expertise =  { label: 'Expertise', value: Math.round(hobbiesScore)}; // send data to client
         generalScore = score/divide;
     }
     else{  // 70% for the filter category, else get 10% or more if child don't have the categories
@@ -173,30 +185,45 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     }
 
     // bonus section - for each bonus sitter gets +5% match to general score
-    if(sitter.availableNow)
+    if(sitter.availableNow){
         generalScore += bonusScore;
-    if(sitter.mobility)
-        generalScore += bonusScore;
-    if(_.indexOf(sitter.education,'college'))
-        generalScore += bonusScore;
-    if(_.indexOf(sitter.education,'highSchool'))
-        generalScore += bonusScore;
+        matchData.availableNow = { label: 'Available Now', value: bonusScore };
+    }
 
+    if(sitter.mobility){
+        generalScore += bonusScore;
+        matchData.mobility = { label: 'Mobility', value: bonusScore };
+    }
+
+    if(_.indexOf(sitter.education,'college') !== -1) {
+        matchData.college = { label: 'College', value: bonusScore };
+        generalScore += bonusScore;
+    }
+
+    if(_.indexOf(sitter.education,'highSchool') !== -1){
+        generalScore += bonusScore;
+        matchData.highSchool = { label: 'High School', value: bonusScore };
+    }
+
+   // generalScore = Math.round(generalScore);
     if(generalScore > 100) // more than 100% match with the bonuses
         generalScore = 100;
+    else
+        matchData.unreachedScore = { label: 'Unreached score', value: Math.round(100 - generalScore)}
     finish = false;  // exit the sync loop
     generalScore = ((generalScore * 0.7) + (sitter.personalityScore * 0.3)); // matcher = 70%, personality-test = 30%
-    callback(generalScore);
+    matchData.matchScore = Math.round(generalScore);
+    callback(matchData);
 };
 
 exports.calculateMatchingScore = function(parent,sitter){
     sitter.address = sitter.address._doc;
     // data = jsonfile.readFileSync(localJSONPath);// TODO: local db only
-    matchScore = computeMatchScore(parent,sitter,null,distance);
-    if(matchScore == 0){
-        return {"match_score":0};  // no match
+    let match = computeMatchScore(parent,sitter,null,distance);
+    if(match.matchScore == 0){
+        return {"matchScore":0};  // no match
     }
     else{
-        return {"match_score":Math.ceil(matchScore)};
+        return  match;
     }
 };
