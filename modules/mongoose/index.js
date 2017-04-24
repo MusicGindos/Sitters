@@ -95,6 +95,7 @@ exports.deleteParent = (req, res) => {
 
 function isMatch(parent, sitter) {
     sitter.match = clone(matcher.calculateMatchingScore(parent, sitter));
+    sitter.matchScore = sitter.match.matchScore;
     if(sitter.match.matchScore > 0) return sitter.match;
 }
 
@@ -107,7 +108,8 @@ exports.getMatches = (req, res) => {
             const parent = req.body;
             const allSitters = _.keyBy(_.map(sitters, '_doc'), function(sitter) {return sitter._id});
             const whitelist = _.filter(allSitters, sitter => !(_.includes(parent.blacklist, sitter._id)));
-            res.status(200).json(whitelist.filter(sitter => isMatch(parent, sitter)));
+            const descendingScoreList = whitelist.filter(sitter => isMatch(parent, sitter));
+            res.status(200).json(_.orderBy(descendingScoreList, ['matchScore'], ['desc']));
         }
     });
 };
@@ -215,13 +217,13 @@ exports.sendInvite = (req, res, next) => {
             // res.status(200).json(parent);
             parent.update({$set: parent}).exec(function (err) {
                 if (err) {
-                    error(res, err);
+                    error(res,err);
                 }
                 else {
                     //status(res,"invite created");
                     Sitter.findOne().where('_id', req.body.sitterID).exec(function (err, sitter) {
                         if (err) {
-                            error(res, err);
+                            error(res,err);
                         }
                         else {
                             sitter._doc.invites.push(req.body);
@@ -230,7 +232,7 @@ exports.sendInvite = (req, res, next) => {
                                     error(res, err);
                                 }
                                 else {
-                                    status(res, "invite created in sitter and parent DB");
+                                    status(res,"invite created in sitter and parent DB");
                                 }
                             });
                         }

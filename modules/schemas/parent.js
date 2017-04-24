@@ -84,6 +84,7 @@ let Partner = new Schema({
 
 let parent = new Schema({
     _id:            {type: String},
+    userType:       {type: String, default: "I'm a parent"},
     email:          {type: String, required: true},
     name :          {type:String, required: true},
     joinedTime:     {type: Date, default: Date.now},
