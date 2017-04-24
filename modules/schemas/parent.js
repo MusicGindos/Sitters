@@ -98,7 +98,8 @@ let parent = new Schema({
     maxPrice:       Number,
     notifications: [notification],
     address:        Address,
-    invites:        [Invite]
+    invites:        [Invite],
+    blacklist:      [String]
 },{collection:"parents"},{_id : false});
 
 Parent = mongoose.model('Parent', parent);

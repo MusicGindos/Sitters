@@ -3,7 +3,7 @@ var express		= require('express'),
     controller 	= require('./server'),
     cors 		= require('cors'),
     bodyParser 	= require('body-parser'),
-    port 		= process.env.PORT || 3333,
+    port 		= process.env.PORT || 4444,
     app 		= express();
 
 //server config

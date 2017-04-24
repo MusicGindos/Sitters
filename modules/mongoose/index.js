@@ -7,18 +7,20 @@ let mongoose = require('mongoose'),
     clone = require('clone'),
     matcher = require('./../matcher'),
     config = {
-        mongoUrl:'mongodb://sitter:123456@ds157499.mlab.com:57499/sitter'
-    };
+        mongoUrl: 'mongodb://sitter:123456@ds157499.mlab.com:57499/sitter'
+    },
+    _ = require("lodash");
 
-let error = (res,error) => {
+
+let error = (res, error) => {
     console.log(error.message);
     res.status(400).json({
         'error': error.message
     });
 };
 
-let status = (res,status) =>{
-    res.status(200).json({'status':status});
+let status = (res, status) => {
+    res.status(200).json({'status': status});
 };
 
 console.log('connection');
@@ -26,7 +28,7 @@ console.log('connection');
 //The server option auto_reconnect is defaulted to true
 let options = {
     server: {
-        auto_reconnect:true,
+        auto_reconnect: true,
     }
 };
 mongoose.connect(config.mongoUrl, options);
@@ -36,10 +38,10 @@ db = mongoose.connection;// a global connection variable
 db.on('error', function (err) {
     console.log('Mongoose: Error: ' + err);
 });
-db.on('open', function() {
+db.on('open', function () {
     console.log('Mongoose: Connection established');
 });
-db.on('disconnected', function() {
+db.on('disconnected', function () {
     console.log('Mongoose: Connection stopped, reconnect');
     mongoose.connect(config.mongoUrl, options);
 });
@@ -47,45 +49,45 @@ db.on('reconnected', function () {
     console.info('Mongoose reconnected!');
 });
 
-db.once('open',function(){ // if needed to do action once got connection
+db.once('open', function () { // if needed to do action once got connection
 
 });
 
 
 //Parent
-exports.createParent = (req,res) =>{
+exports.createParent = (req, res) => {
     let parent = new Parent(req.body);
-    parent.save(function(err){
-        if(err){
-            error(res,err);
+    parent.save(function (err) {
+        if (err) {
+            error(res, err);
         }
-        else{
-            status(res,req.body.email + " created");
+        else {
+            status(res, req.body.email + " created");
         }
     });
 };
 
-exports.updateParent = (req,res) =>{
+exports.updateParent = (req, res) => {
     Parent.findOne().where('_id', req.body._id).exec(function (err, doc) {
-        doc.update({$set: req.body}).exec(function (err){
+        doc.update({$set: req.body}).exec(function (err) {
             if (err) {
-                error(res,err);
+                error(res, err);
             }
             else {
-                status(res,req.body.email + " updated");
+                status(res, req.body.email + " updated");
             }
         });
     });
 };
 
-exports.deleteParent = (req,res) =>{
+exports.deleteParent = (req, res) => {
     Parent.findOne().where('_id', req.body._id).exec(function (err, doc) {
         doc.remove(function (err) {
-            if (err){
-                error(res,err);
+            if (err) {
+                error(res, err);
             }
             else {
-                status(res,req.body.email + " deleted");
+                status(res, req.body.email + " deleted");
             }
         });
     });
@@ -96,22 +98,24 @@ function isMatch(parent, sitter) {
     if(sitter.match.matchScore > 0) return sitter.match;
 }
 
-exports.getMatches = (req,res) =>{
+exports.getMatches = (req, res) => {
     Sitter.find(function (err, sitters) {
-        if (err){
-            error(res,err);
+        if (err) {
+            error(res, err);
         }
         else {
             const parent = req.body;
-            res.status(200).json(sitters.filter(sitter => isMatch(parent, sitter._doc)));
+            const allSitters = _.keyBy(_.map(sitters, '_doc'), function(sitter) {return sitter._id});
+            const whitelist = _.filter(allSitters, sitter => !(_.includes(parent.blacklist, sitter._id)));
+            res.status(200).json(whitelist.filter(sitter => isMatch(parent, sitter)));
         }
     });
 };
 
-exports.getParent = (req,res) =>{
+exports.getParent = (req, res) => {
     Parent.findOne().where('_id', req.body.id).exec(function (err, doc) {
-        if (err){
-            error(res,err);
+        if (err) {
+            error(res, err);
         }
         else {
             res.status(200).json(doc);
@@ -120,48 +124,48 @@ exports.getParent = (req,res) =>{
 };
 
 //Sitter
-exports.createSitter = (req,res) =>{
+exports.createSitter = (req, res) => {
     let sitter = new Sitter(req.body);
-    sitter.save(function(err){
-        if(err){
-            error(res,err);
+    sitter.save(function (err) {
+        if (err) {
+            error(res, err);
         }
-        else{
-            status(res,req.body.email + " created");
+        else {
+            status(res, req.body.email + " created");
         }
     });
 };
 
-exports.updateSitter = (req,res) =>{
+exports.updateSitter = (req, res) => {
     Sitter.findOne().where('_id', req.body._id).exec(function (err, doc) {
-        doc.update({$set: req.body}).exec(function (err){
+        doc.update({$set: req.body}).exec(function (err) {
             if (err) {
-                error(res,err);
+                error(res, err);
             }
             else {
-                status(res,req.body.email + " updated");
+                status(res, req.body.email + " updated");
             }
         });
     });
 };
 
-exports.deleteSitter = (req,res) =>{
+exports.deleteSitter = (req, res) => {
     Sitter.findOne().where('_id', req.body._id).exec(function (err, doc) {
         doc.remove(function (err) {
-            if (err){
-                error(res,err);
+            if (err) {
+                error(res, err);
             }
             else {
-                status(res,req.body.email + " deleted");
+                status(res, req.body.email + " deleted");
             }
         });
     });
 };
 
-exports.getSitter = (req,res) =>{
+exports.getSitter = (req, res) => {
     Sitter.findOne().where('_id', req.body._id).exec(function (err, doc) {
-        if (err){
-            error(res,err);
+        if (err) {
+            error(res, err);
         }
         else {
             res.status(200).json(doc);
@@ -169,10 +173,10 @@ exports.getSitter = (req,res) =>{
     });
 };
 
-exports.getSitters = (req,res) =>{
+exports.getSitters = (req, res) => {
     Sitter.find(function (err, sitters) {
-        if (err){
-            error(res,err);
+        if (err) {
+            error(res, err);
         }
         else {
             res.status(200).json(sitters);
@@ -180,7 +184,7 @@ exports.getSitters = (req,res) =>{
     });
 };
 
-exports.getUser = (req,res) =>{
+exports.getUser = (req, res) => {
     Parent.findOne().where('_id', req.body._id).exec(function (err, parent) {
         if (err || err === null) {
             //error(res,err);
@@ -200,24 +204,24 @@ exports.getUser = (req,res) =>{
 
 };
 
-exports.sendInvite = (req,res,next) =>{
+exports.sendInvite = (req, res, next) => {
     Parent.findOne().where('_id', req.body.parentID).exec(function (err, parent) {
         if (err) {
-            error(res,err);
+            error(res, err);
         }
         else {
             parent._doc.invites.push(req.body);
             //console.log(parent);
             // res.status(200).json(parent);
-            parent.update({$set: parent}).exec(function (err){
+            parent.update({$set: parent}).exec(function (err) {
                 if (err) {
-                    error(res,err);
+                    error(res, err);
                 }
                 else {
                     //status(res,"invite created");
                     Sitter.findOne().where('_id', req.body.sitterID).exec(function (err, sitter) {
                         if (err) {
-                            error(res,err);
+                            error(res, err);
                         }
                         else {
                             sitter._doc.invites.push(req.body);
@@ -226,7 +230,7 @@ exports.sendInvite = (req,res,next) =>{
                                     error(res, err);
                                 }
                                 else {
-                                    status(res,"invite created in sitter and parent DB");
+                                    status(res, "invite created in sitter and parent DB");
                                 }
                             });
                         }
