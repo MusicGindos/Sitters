@@ -75,6 +75,16 @@ let notification = new Schema({
     time: Date
 },{_id : false});
 
+let Settings = new Schema({
+   allowNotification: {type: Boolean, default: true },
+   allowSuggestions: {type: Boolean, default: true }
+},{_id : false});
+
+let MatchBI = new Schema({
+    median: Number,
+    matchScores: [Number]
+},{_id : false});
+
 let Partner = new Schema({
     email:          {type: String, required: true},
     name :          {type:String, required: true},
@@ -100,7 +110,10 @@ let parent = new Schema({
     notifications: [notification],
     address:        Address,
     invites:        [Invite],
-    blacklist:      [String]
+    blacklist:      [String],
+    settings:       Settings,
+    lastInvite:     Date,
+    matchBI:        MatchBI
 },{collection:"parents"},{_id : false});
 
 Parent = mongoose.model('Parent', parent);

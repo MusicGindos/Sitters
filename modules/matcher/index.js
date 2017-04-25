@@ -209,10 +209,10 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     if(generalScore > 100) // more than 100% match with the bonuses
         generalScore = 100;
     else
-        matchData.unreachedScore = { label: 'Unreached score', value: Math.round(100 - generalScore)}
+        matchData.unreachedScore = { label: 'Unreached', value: Math.round(100 - generalScore)}
     finish = false;  // exit the sync loop
     generalScore = ((generalScore * 0.7) + (sitter.personalityScore * 0.3)); // matcher = 70%, personality-test = 30%
-    matchData.matchScore = Math.round(generalScore);
+    matchData.matchScore = Math.ceil(generalScore);
     callback(matchData);
 };
 
