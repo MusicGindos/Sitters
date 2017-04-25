@@ -95,7 +95,8 @@ let sitter = new Schema({
     specialNeeds:    [String],
     expertise:       [String],
     reviews:          [Review],
-    invites:         [Invite]
+    invites:         [Invite],
+    lastInvite:     String
 },{collection:"sitters"},{_id : false});
 
 Sitter = mongoose.model('Sitter', sitter);

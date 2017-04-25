@@ -25,6 +25,7 @@
     "google-distance": "^1.0.1",
     "jsonfile": "^2.4.0",
     "lodash": "^4.17.4",
+    "moment": "^2.18.1",
     "mongoose": "^4.8.4",
     "mongoose-schema-extend": "^0.2.2",
     "shortid": "^2.2.6",

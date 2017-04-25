@@ -112,7 +112,6 @@ let parent = new Schema({
     invites:        [Invite],
     blacklist:      [String],
     settings:       Settings,
-    lastInvite:     Date,
     matchBI:        MatchBI
 },{collection:"parents"},{_id : false});
 

@@ -4,6 +4,7 @@ let mongoose = require('mongoose'),
     Sitter = require('../schemas/sitter').sitterModel,
     base = require('../schemas/base'),
     db,
+    moment = require('moment'),
     clone = require('clone'),
     matcher = require('./../matcher'),
     config = {
@@ -213,8 +214,6 @@ exports.sendInvite = (req, res, next) => {
         }
         else {
             parent._doc.invites.push(req.body);
-            //console.log(parent);
-            // res.status(200).json(parent);
             parent.update({$set: parent}).exec(function (err) {
                 if (err) {
                     error(res,err);
@@ -227,6 +226,7 @@ exports.sendInvite = (req, res, next) => {
                         }
                         else {
                             sitter._doc.invites.push(req.body);
+                            sitter._doc.lastInvite = moment().format("DD/MM/YYYY");
                             sitter.update({$set: sitter}).exec(function (err) {
                                 if (err) {
                                     error(res, err);
