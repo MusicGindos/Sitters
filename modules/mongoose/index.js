@@ -98,7 +98,7 @@ function isMatch(parent, sitter) {
     let median = parent.matchBI.median? parent.matchBI.median: 60;
     sitter.match = clone(matcher.calculateMatchingScore(parent, sitter));
     sitter.matchScore = sitter.match.matchScore;
-    if(sitter.match.matchScore > median) return sitter.match;
+    if(sitter.match.matchScore >= median) return sitter.match;
 }
 
 exports.getMatches = (req, res) => {

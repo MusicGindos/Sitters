@@ -61,11 +61,12 @@ let Invite = new Schema({
 });
 
 let Review = new Schema({
-    parentID:       {type:Number, required: true},
-    sitterID:       {type:Number, required: true},
+    parentID:       {type:String, required: true},
+    sitterID:       {type:String, required: true},
+    parentImage:    {type:String},
     date:           {type:Date, required: true, default: Date.now},
     description:    {type:String, required: true},
-    rating:         {type:Number, required: true}
+    rating:         {type:Number}
 },{_id : false});
 
 let sitter = new Schema({
