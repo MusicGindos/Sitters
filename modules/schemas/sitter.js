@@ -69,6 +69,17 @@ let Review = new Schema({
     rating:         {type:Number}
 },{_id : false});
 
+let Question = new Schema({
+    start: String,
+    end: String,
+    value: Number
+},{_id : false});
+
+let PersonalityTest = new Schema({
+    questions: [Question],
+    totalScore: Number
+},{_id : false});
+
 let sitter = new Schema({
     _id:            {type: String},
     email:          {type: String, required: true},
@@ -97,7 +108,8 @@ let sitter = new Schema({
     expertise:       [String],
     reviews:          [Review],
     invites:         [Invite],
-    lastInvite:     String
+    lastInvite:     String,
+    personalityTest: PersonalityTest
 },{collection:"sitters"},{_id : false});
 
 Sitter = mongoose.model('Sitter', sitter);

@@ -61,6 +61,17 @@ let Invite = new Schema({
     sitterImage: String
 });
 
+let Question = new Schema({
+    start: String,
+    end: String,
+    value: Number
+});
+
+let PersonalityTest = new Schema({
+    questions: [Question],
+    totalScore: Number
+});
+
 let Child = new Schema({
     specialNeeds:   {type:[String], lowercase: true},
     hobbies:        {type:[String], lowercase: true},
@@ -76,8 +87,8 @@ let notification = new Schema({
 },{_id : false});
 
 let Settings = new Schema({
-   allowNotification: {type: Boolean, default: true },
-   allowSuggestions: {type: Boolean, default: true }
+    allowNotification: {type: Boolean, default: true },
+    allowSuggestions: {type: Boolean, default: true }
 },{_id : false});
 
 let MatchBI = new Schema({
@@ -112,7 +123,8 @@ let parent = new Schema({
     invites:        [Invite],
     blacklist:      [String],
     settings:       Settings,
-    matchBI:        MatchBI
+    matchBI:        MatchBI,
+    personalityTest: PersonalityTest
 },{collection:"parents"},{_id : false});
 
 Parent = mongoose.model('Parent', parent);

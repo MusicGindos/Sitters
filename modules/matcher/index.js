@@ -22,7 +22,9 @@ let express		    = require('express'),
     score           = 0,
     divide          = 0,
     tempScore       = 0,
-    matchData       = {};
+    matchData       = {},
+    personalityCategoryScore = 0.3,
+    normalCategoryScore = 0.7;
 
 let computeSync = function(origin,destination,callback){  // google-distance is async and we need it to be sync so we use wrapper with flag
     googleDistance.apiKey = "AIzaSyBwP7ZYyCO86H41nE-E5eHYPCDir9yBpc0";  // google-distance apikey for make more calls
@@ -205,14 +207,72 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
         matchData.highSchool = { label: 'High School', value: bonusScore };
     }
 
+    let personalityParent = {
+        questions: [{
+        start: "yoel",
+            end: "yoel",
+            value: 5
+        },{
+            start: "yoel1",
+            end: "yoel1",
+            value: 2
+        },{
+            start: "yoe2",
+            end: "yoe2",
+            value: 3
+        }],
+        totalScore: 10
+
+    };
+    let personalitySitter = {
+        questions: [{
+            start: "yoel",
+            end: "yoel",
+            value: 5
+        },{
+            start: "yoel1",
+            end: "yoel1",
+            value: 4
+        },{
+            start: "yoel2",
+            end: "yoel2",
+            value: 3
+        }],
+        totalScore: 12
+
+    };
+    let personalitySameQuestions = [];
+    for(let index = 0; index < 3; index++){ // TODO: when all questions is up change for loop to 10
+        if(personalityParent.questions[index].value === personalitySitter.questions[index].value){
+            personalitySameQuestions.push(personalitySitter.questions[index]);
+        }
+    }
+    let testScore = 0;
+    let testScoreDiffrence = Math.abs(personalityParent.totalScore -  personalitySitter.totalScore);
+    if(testScoreDiffrence <= 10){
+        testScore = 100;
+    }
+    else if(testScoreDiffrence > 10 && testScoreDiffrence <= 20){
+        testScore = 80;
+    }
+    else if(testScoreDiffrence > 20 && testScoreDiffrence <= 30){
+        testScore = 60;
+    }
+    else if(testScoreDiffrence > 30){
+        testScore = 40;
+    }
+    matchData.testScore = { label: 'Personality Score', value:testScore};
+
    // generalScore = Math.round(generalScore);
     if(generalScore > 100) // more than 100% match with the bonuses
         generalScore = 100;
     else
-        matchData.unreachedScore = { label: 'Unreached', value: Math.round(100 - generalScore)}
+        matchData.unreachedScore = { label: 'Unreached', value: Math.round(100 - generalScore)};
     finish = false;  // exit the sync loop
-    generalScore = ((generalScore * 0.7) + (sitter.personalityScore * 0.3)); // matcher = 70%, personality-test = 30%
+    generalScore = ((generalScore * 0.7) + (testScore * 0.3)); // matcher = 70%, personality-test = 30%
     matchData.matchScore = Math.ceil(generalScore);
+    if(personalitySameQuestions.length > 0)
+        matchData.personalityQuestions = personalitySameQuestions;
     callback(matchData);
 };
 
