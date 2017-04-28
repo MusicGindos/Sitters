@@ -62,8 +62,8 @@ let Invite = new Schema({
 });
 
 let Question = new Schema({
-    start: String,
-    end: String,
+    label1: String,
+    label2: String,
     value: Number
 });
 
