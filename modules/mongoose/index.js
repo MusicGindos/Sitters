@@ -117,7 +117,7 @@ exports.getMatches = (req, res) => {
 };
 
 exports.getParent = (req, res) => {
-    Parent.findOne().where('_id', req.body.id).exec(function (err, doc) {
+    Parent.findOne().where('_id', req.body._id).exec(function (err, doc) {
         if (err) {
             error(res, err);
         }
