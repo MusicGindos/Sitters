@@ -34,7 +34,7 @@ app.post('/sitter/update', controller.updateSitter);
 app.delete('/sitter/delete', controller.deleteSitter);
 app.post('/sitter/get', controller.getSitter);
 app.post('/user/getUser', controller.getUser);
-app.post('/invite/create', controller.sendInvite)
+app.post('/invite/create', controller.sendInvite);
 app.get('*', (req,res,next) => {
     let err = new Error();
     err.status = 404;

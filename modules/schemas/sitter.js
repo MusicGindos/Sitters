@@ -12,32 +12,32 @@ let Address = new Schema({
 
 let Hours = new Schema({
     sunday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
+        start:  String,
+        finish: String
     },
     monday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
+        start:  String,
+        finish: String
     },
     tuesday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
+        start:  String,
+        finish: String
     },
     wednesday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
+        start:  String,
+        finish: String
     },
     thursday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
+        start:  String,
+        finish: String
     },
     friday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
+        start:  String,
+        finish: String
     },
     saturday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
+        start:  String,
+        finish: String
     }
 },{_id : false});
 
@@ -70,8 +70,8 @@ let Review = new Schema({
 },{_id : false});
 
 let Question = new Schema({
-    start: String,
-    end: String,
+    label1: String,
+    label2: String,
     value: Number
 },{_id : false});
 
@@ -89,12 +89,10 @@ let sitter = new Schema({
     profilePicture: String,
     coverPhoto:     String,
     age:            {type:Number,required: true, min: 0},
-    location:       String,
     languages:      [String],
     timezone:       String,
     address:         Address,
     education:       [String],
-    personalityScore:Number,
     minAge:          {type: Number, required: true, default: 0},
     maxAge:          {type: Number, required: true, default: 12},
     currencyType:    String,

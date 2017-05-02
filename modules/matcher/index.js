@@ -236,19 +236,14 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     if(_.indexOf(sitter.education,'college') !== -1) {
         collegeScore = 5;
         generalScore += 5;
-        matchData.push({ name: 'College', value: 5});
     }
-    else{
-        matchData.push({ name: 'College', value: 0});
-    }
-
     if(_.indexOf(sitter.education,'highSchool') !== -1){
         highSchoolScore = 5;
         generalScore += 5;
-        matchData.push({ name: 'High School', value: 5});
+        matchData.push({ name: 'Education', value: 100});
     }
     else{
-        matchData.push({ name: 'High School', value: 0});
+        matchData.push({ name: 'Education', value: 50});
     }
 
     //let personalitySameQuestions = [];
@@ -334,14 +329,12 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
         generalScore += scoreSet.default.highSchool * highSchoolScore;
         generalScore += scoreSet.default.proximity * proximityScore;
         generalScore += scoreSet.default.personalityTest * testScore;
-    }
-    // generalScore = Math.round(generalScore);
+    };
     if(generalScore > 100) // more than 100% match with the bonuses
         generalScore = 100;
     finish = false;  // exit the sync loop
     let match = {};
     match.matchScore = Math.ceil(generalScore);
-    // match.data = matchData;
     match.data = _.orderBy(matchData, ['value'], ['desc']);
     callback(match);
 };
