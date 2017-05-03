@@ -60,14 +60,23 @@ let Invite = new Schema({
     sitterImage: String
 });
 
+let Rates = new Schema({
+        punctioal: {type: Number, default: 0},
+        behavior: {type: Number, default: 0},
+        connection: {type: Number, default: 0},
+        general: {type: Number, default: 0},
+},{_id : false});
+
 let Review = new Schema({
+    _id: String,
     parentID:       {type:String, required: true},
     sitterID:       {type:String, required: true},
     parentImage:    {type:String},
+    parentName: {type:String},
     date:           {type:Date, required: true, default: Date.now},
     description:    {type:String, required: true},
-    rating:         {type:Number}
-},{_id : false});
+    rates: Rates
+});
 
 let Question = new Schema({
     label1: String,

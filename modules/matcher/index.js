@@ -143,7 +143,7 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     }
     if(proximityScore < 0)  // if the sitter is more than 50 kilometer from thr child address
         proximityScore = 0;
-    matchData.push({ name: 'proximity', value: Math.round(proximityScore)});
+    matchData.push({ name: 'Proximity', value: Math.round(proximityScore)});
 
     //experience score
     if(sitter.experience >= 4)  // calculate experience by years
@@ -156,7 +156,7 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
         experienceScore = 60;
     else if(sitter.experience >= 0)
         experienceScore = 0;
-    matchData.push({ name: 'experience', value: Math.round(experienceScore)});
+    matchData.push({ name: 'Experience', value: Math.round(experienceScore)});
 
     //hobbies score
     if(typeof parent.children.hobbies !== "undefined" && parent.children.hobbies.length > 0 && sitter.hobbies.length > 0){  // calculate hobbies match of the sitter with child
@@ -266,7 +266,7 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     else if(testScoreDifference > 30){
         testScore = 40;
     }
-    matchData.push({ name: 'Personality Score', value: testScore});
+    matchData.push({ name: 'Personality', value: testScore});
 
     if(sameHobbies > 0){
         if(sameExpertise > 0) { // hobbies and expertise score set
