@@ -125,7 +125,7 @@ exports.deleteParent = (req, res) => {
 };
 
 function isMatch(parent, sitter) {
-    let median = parent.matchBI.median? parent.matchBI.median: 60;
+    let median = parent.matchBI.median? parent.matchBI.median: 40;
     sitter.match = clone(matcher.calculateMatchingScore(parent, sitter));
     sitter.matchScore = sitter.match.matchScore;
     if(sitter.match.matchScore >= median) return sitter.match;
