@@ -26,13 +26,14 @@ let Child = new Schema({
 
 
 let parent = base.user.extend({
+    address:        base.address,
+    personalityTest: base.personalityTest,
     partner:        Partner,
     children:       Child,
     maxPrice:       Number,
     blacklist:      [String],
     settings:       Settings,
-    matchBI:        base.matchBI,
-
+    matchBI:        base.matchBI
 },{collection:"parents"},{_id : false});
 Parent = mongoose.model('Parent', parent);
 module.exports = {

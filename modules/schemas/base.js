@@ -105,10 +105,8 @@ let user = new Schema({
     languages:      [String],
     timezone:       String,
     notifications: [notification],
-    address:        address,
     invites:        [invite],
-    personalityTest: personalityTest,
-    mutualFriends: [friend],
+    mutualFriends: [friend]
 });
 User = mongoose.model('User', user);
 

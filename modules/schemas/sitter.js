@@ -36,6 +36,8 @@ let sitter = base.user.extend({
     expertise:       [String],
     reviews:          [Review],
     lastInvite:     String,
+    address:        base.address,
+    personalityTest: base.personalityTest,
 },{collection:"sitters"},{_id : false});
 
 Sitter = mongoose.model('Sitter', sitter);
