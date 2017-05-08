@@ -20,7 +20,7 @@ let express		    = require('express'),
 
 
 let init = function(){
-        finish = true,
+    finish = true,
         maindata = origin = destination = distance = proximityScore = experienceScore = sameExpertise  = null,
         sameHobbies = generalScore = collegeScore = highSchoolScore = 0,
         matchData       = []
@@ -332,6 +332,16 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     };
     if(generalScore > 100) // more than 100% match with the bonuses
         generalScore = 100;
+    else{
+        if(sitter.mutualFriends.length > 0){
+            let mutualFriendsScore = (sitter.mutualFriends.length * 2) > 10? 10: sitter.mutualFriends.length *2;
+            matchData.push({ name: 'Mutual Friends', value: mutualFriendsScore * 10});
+            if((generalScore + mutualFriendsScore ) > 100)
+                mutualFriendsScore = 100 - generalScore;
+            generalScore += mutualFriendsScore;
+
+        }
+    }
     finish = false;  // exit the sync loop
     let match = {};
     match.matchScore = Math.ceil(generalScore);
