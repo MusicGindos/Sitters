@@ -10,6 +10,7 @@ let mongoose = require('mongoose'),
     config = {
         mongoUrl: 'mongodb://sitter:123456@ds157499.mlab.com:57499/sitter'
     },
+    finish = true,
     _ = require("lodash");
 
 
@@ -55,34 +56,34 @@ db.once('open', function () { // if needed to do action once got connection
 });
 
 let Hours = {
-        "sunday": {
-            "start": "09:30",
-            "finish": "12:00"
-        },
-        "monday": {
-            "start": "12:30",
-            "finish": "20:00"
-        },
-        "tuesday": {
-            "start": "18:00",
-            "finish": "23:00"
-        },
-        "wednesday": {
-            "start": "08:00",
-            "finish": "19:00"
-        },
-        "thursday": {
-            "start": "12:00",
-            "finish": "16:00"
-        },
-        "friday": {
-            "start": "13:00",
-            "finish": "18:00"
-        },
-        "saturday": {
-            "start": "08:00",
-            "finish": "23:00"
-        }
+    "sunday": {
+        "start": "09:30",
+        "finish": "12:00"
+    },
+    "monday": {
+        "start": "12:30",
+        "finish": "20:00"
+    },
+    "tuesday": {
+        "start": "18:00",
+        "finish": "23:00"
+    },
+    "wednesday": {
+        "start": "08:00",
+        "finish": "19:00"
+    },
+    "thursday": {
+        "start": "12:00",
+        "finish": "16:00"
+    },
+    "friday": {
+        "start": "13:00",
+        "finish": "18:00"
+    },
+    "saturday": {
+        "start": "08:00",
+        "finish": "23:00"
+    }
 };
 
 //Parent
@@ -123,6 +124,8 @@ exports.deleteParent = (req, res) => {
         });
     });
 };
+
+
 
 function isMatch(parent, sitter) {
     let median = parent.matchBI.median? parent.matchBI.median: 40;
@@ -237,7 +240,6 @@ exports.getUser = (req, res) => {
             res.status(200).json(parent);
         }
     });
-
 };
 
 exports.sendInvite = (req, res, next) => {
@@ -252,7 +254,6 @@ exports.sendInvite = (req, res, next) => {
                     error(res,err);
                 }
                 else {
-                    //status(res,"invite created");
                     Sitter.findOne().where('_id', req.body.sitterID).exec(function (err, sitter) {
                         if (err) {
                             error(res,err);

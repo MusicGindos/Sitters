@@ -1,7 +1,6 @@
 let mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     User;
-// Address, Hours, Invite, Question, PersonalityTest, Notification, MatchBI, Friend, User;
 
 let address = new Schema({
     city:       String,
@@ -12,34 +11,13 @@ let address = new Schema({
 },{_id : false});
 
 let hours = new Schema({
-    sunday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
-    },
-    monday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
-    },
-    tuesday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
-    },
-    wednesday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
-    },
-    thursday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
-    },
-    friday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
-    },
-    saturday:{
-        start:  {type:String, default:"0"},
-        finish: {type:String, default:"0"}
-    }
+    sunday: [String],
+    monday: [String],
+    tuesday: [String],
+    wednesday: [String],
+    thursday: [String],
+    friday: [String],
+    saturday: [String],
 },{_id : false});
 
 let invite = new Schema({
@@ -87,7 +65,8 @@ let matchBI = new Schema({
 
 let friend = new Schema({
     name: String,
-    id: String
+    id: String,
+    picture: {type: String, default: ''}
 },{_id : false});
 
 

@@ -58,9 +58,7 @@ let scoreSet = {
         hobbies: 0.05,
         expertise: 0.05
     },
-
 };
-
 
 let computeSync = function(origin,destination,callback){  // google-distance is async and we need it to be sync so we use wrapper with flag
     googleDistance.apiKey = "AIzaSyBwP7ZYyCO86H41nE-E5eHYPCDir9yBpc0";  // google-distance apikey for make more calls
@@ -162,7 +160,6 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     if(typeof parent.children.hobbies !== "undefined" && parent.children.hobbies.length > 0 && sitter.hobbies.length > 0){  // calculate hobbies match of the sitter with child
         _.forEach(parent.children.hobbies, function(hobbie) {
             if(_.indexOf(sitter.hobbies,hobbie) > -1){ // check if sitter have the hobbie
-                //hobbiesScore +=  (100 / parent.children.hobbies.length);  // add the fraction of 1 match from the length of the hobbie array
                 sameHobbies++;
             }
         });
@@ -171,12 +168,10 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
         sameHobbies = -1;  // children don't have any hobbies
     }
 
-
     //expertise score
     if(typeof parent.children.expertise !== "undefined" && parent.children.expertise.length > 0 && sitter.expertise.length > 0){
         _.forEach(parent.children.expertise, function(exp) {
             if(_.indexOf(sitter.expertise,exp) > -1){ // check if sitter have the expertise
-                // knowledgeScore +=  (100 / parent.children.expertise.length);   // add the fraction of 1 match from the length of the expertise array
                 sameExpertise++;
             }
         });
@@ -184,52 +179,6 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     else{
         sameExpertise = -1;  // children don't have any expertise
     }
-
-    // if(filter == null){
-    //     divide = 2;
-    //     score = proximityScore + experienceScore;
-    //     if(knowledgeScore >= 0 ){
-    //         divide++;
-    //         score += knowledgeScore;
-    //     }
-    //     if(hobbiesScore >= 0){
-    //         divide++;
-    //         score += hobbiesScore;
-    //     }
-    //     _.forIn(matchData, function(value, key) {
-    //         if(key !== 'matchScore')
-    //             value.value = (value.value / divide);
-    //     });
-    //     if(hobbiesScore !== -1)
-    //         matchData.hobbies = { label: 'Hobbies', value: Math.round(hobbiesScore)}; // send data to client
-    //     if(knowledgeScore !== -1)
-    //         matchData.expertise =  { label: 'Expertise', value: Math.round(hobbiesScore)}; // send data to client
-    //     generalScore = score/divide;
-    // }
-    // else{  // 70% for the filter category, else get 10% or more if child don't have the categories
-    //     divide = 1;
-    //     tempScore = 0;
-    //     //score = proximityScore + experienceScore;
-    //     if(knowledgeScore >= 0 ){
-    //         divide++;
-    //         tempScore += knowledgeScore;
-    //     }
-    //     if(hobbiesScore >= 0){
-    //         divide++;
-    //         tempScore += hobbiesScore;
-    //     }
-    //
-    //     if(filter == "location"){
-    //         score += proximityScore * 0.7;
-    //         tempScore += experienceScore;
-    //     }
-    //     else if(filter == "experience"){
-    //         score += experienceScore * 0.7;
-    //         tempScore += proximityScore;
-    //     }
-    //     generalScore += (0.3 * (tempScore / divide)) + score;
-    // }
-
     if(sitter.mobility)
         generalScore += 5;
 

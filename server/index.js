@@ -71,6 +71,7 @@ exports.updateSitter = (req, res, next) => {
     //suggest.updateNotification();
 };
 
+
 exports.deleteSitter = (req, res, next) => {
     mongoose.deleteSitter(req,res,next);
     //suggest.deleteNotification();
