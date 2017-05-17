@@ -30,6 +30,7 @@ app.post('/parent/get', controller.getParent);
 app.post('/parent/getMatches', controller.getMatches);
 app.post('/parent/getSitters', controller.getSitters);
 app.post('/parent/updateMutualFriends', controller.updateMutualFriends);
+app.post('/parent/notifications', controller.notifications);
 app.post('/sitter/create', controller.createSitter);
 app.post('/sitter/update', controller.updateSitter);
 app.delete('/sitter/delete', controller.deleteSitter);
