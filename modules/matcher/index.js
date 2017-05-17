@@ -16,8 +16,8 @@ let express		    = require('express'),
     sameExpertise  = null,
     collegeScore = 0,
     highSchoolScore = 0,
-    matchData       = [];
-
+    matchData       = [],
+    db              = require('../mongoose');
 
 let init = function(){
     finish = true,
@@ -113,9 +113,18 @@ let computeMatchScore = function(parent,sitter,filter,distance) {  // make compu
     return maindata;
 };
 
+
 let computeScore = function(parent,sitter,filter,distance,callback){ // compute match score between sitter-parent-child
     init();
     if(parent.children.age < sitter.minAge || parent.children.age > sitter.maxAge || sitter.hourFee > parent.maxPrice){
+        finish = false;
+        callback(0);
+        return;
+    }
+    else if( ((distance.distanceValue / 1000) > 50 ) || (parent.preferedGender !== "both" && parent.preferedGender !== sitter.gender))  {
+        console.log('blacklist-distance');
+        parent.blacklist.push(sitter._id);
+        db.addSitterToBlacklist(parent);
         finish = false;
         callback(0);
         return;

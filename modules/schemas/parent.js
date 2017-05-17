@@ -33,7 +33,8 @@ let parent = base.user.extend({
     maxPrice:       Number,
     blacklist:      [String],
     settings:       Settings,
-    matchBI:        base.matchBI
+    matchBI:        base.matchBI,
+    preferedGender: String
 },{collection:"parents"},{_id : false});
 Parent = mongoose.model('Parent', parent);
 module.exports = {

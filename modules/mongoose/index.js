@@ -171,6 +171,19 @@ exports.getParents = () => {
     });
 };
 
+exports.addSitterToBlacklist = (parent) => {
+    Parent.findOne().where('_id', parent._id).exec(function (err, doc) {
+        doc.update({$set: parent}).exec(function (err) {
+            if (err) {
+               console.log(err);
+            }
+            else {
+                console.log('blacklist updated');
+            }
+        });
+    });
+};
+
 //Sitter
 exports.createSitter = (req, res) => {
     // let s = req.body;
