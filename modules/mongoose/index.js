@@ -160,11 +160,22 @@ exports.getParent = (req, res) => {
     });
 };
 
+exports.getParents = () => {
+    Parent.find(function (err, parents) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+           return parents;
+        }
+    });
+};
+
 //Sitter
 exports.createSitter = (req, res) => {
-    let s = req.body;
-    s.workingHours = Hours;
-    let sitter = new Sitter(s);
+    // let s = req.body;
+    // s.workingHours = Hours;
+    let sitter = new Sitter(req.body);
     sitter.save(function (err) {
         if (err) {
             error(res, err);

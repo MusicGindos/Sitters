@@ -62,8 +62,7 @@ exports.sendReview = (req, res, next) => {
 
 exports.createSitter = (req, res, next) => {
     mongoose.createSitter(req,res,next);
-    //iterate relevant parents
-    //suggest.newNotification();
+    suggest.newNotification(req.body);
 };
 
 exports.updateSitter = (req, res, next) => {

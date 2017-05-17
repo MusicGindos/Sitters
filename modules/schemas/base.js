@@ -54,8 +54,11 @@ let personalityTest = new Schema({
 
 let notification = new Schema({
     message: String,
-    new: Boolean,
-    time: Date
+    wasRead: Boolean,
+    date: Date,
+    sitterName: String,
+    sitterID: String,
+    sitterPicture: String
 },{_id : false});
 
 let matchBI = new Schema({

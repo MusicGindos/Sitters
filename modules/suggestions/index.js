@@ -3,27 +3,50 @@
 let matcher         = require('../matcher'),
     forEach         = require("lodash").forEach,
     db              = require('../mongoose'),
-    notification    = require('../schemas/parent').Notification;
+    Notification    = require('../schemas/parent').Notification,
+    clone           = require('clone'),
+    Parent = require('../schemas/parent').Parent,
+    Sitter = require('../schemas/sitter').sitterModel;
 
 let MESSAGE_NEW = "New Sitter Available";
 let MESSAGE_UPDATE = "One Of your Sitters Updated His Data";
 let MESSAGE_DELETE = "One Of your Sitters decided to leave Sitters :(";
-let NO_MATCH = 0;
+
 
 exports.newNotification = (sitter) => {
-    let parents = db.getParent();
-    forEach(parents, (parent) => {
-        let score = matcher.calculateMatchingScore();
-        if(score != NO_MATCH) {
-            parent.matches.push({sitter, score});
-            notification.message = MESSAGE_NEW;
-            notification.new = true;
-            notification.time = new Date().getTime();
-            parent.notifications.push(notification);
+    const s = new Sitter(sitter);
+    Parent.find(function (err, parents) {
+        if (err) {
+            console.log(err);
         }
-        db.updateParent(parent);
-    });
+        else {
+            forEach(parents, (parent) => {
+                const match = clone(matcher.calculateMatchingScore(parent, s));
+                if(match.matchScore > 0) {
+                    const notification = {
+                        message: MESSAGE_NEW,
+                        wasRead: false,
+                        date: new Date().getTime(),
+                        sitterName: sitter.name,
+                        sitterID: sitter._id,
+                        sitterPicture: sitter.profilePicture
+                    };
+                    parent.notifications.push(notification);
+                    Parent.findOne().where('_id', parent._id).exec(function (err, doc) {
+                        doc.update({$set: parent}).exec(function (err) {
+                            if (err) {
+                                console.log(err);
+                            }
+                            else {
+                               console.log("notification added");
+                            }
+                        });
+                    });
 
+                }
+            });
+        }
+    });
 };
 
 exports.updateNotification = (sitter) => {

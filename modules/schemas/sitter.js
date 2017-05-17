@@ -22,6 +22,14 @@ let Review = new Schema({
     rates: Rates
 });
 
+let address = new Schema({
+    city:       String,
+    street:     String,
+    houseNumber:{type: Number, min: 0},
+    latitude:   {type: Number, default: 0},
+    longitude:  {type: Number, default: 0}
+},{_id : false});
+
 let sitter = base.user.extend({
     education:       [String],
     minAge:          {type: Number, required: true, default: 0},
@@ -36,9 +44,9 @@ let sitter = base.user.extend({
     expertise:       [String],
     reviews:          [Review],
     lastInvite:     String,
-    address:        base.address,
+    address:        address,
     personalityTest: base.personalityTest,
-},{collection:"sitters"},{_id : false});
+},{collection:"sitters"});
 
 Sitter = mongoose.model('Sitter', sitter);
 module.exports = {sitter: sitter, sitterModel: Sitter};
