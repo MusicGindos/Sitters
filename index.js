@@ -29,6 +29,7 @@ app.delete('/parent/delete', controller.deleteParent);
 app.post('/parent/get', controller.getParent);
 app.post('/parent/getMatches', controller.getMatches);
 app.post('/parent/getSitters', controller.getSitters);
+app.post('/parent/updateMutualFriends', controller.updateMutualFriends);
 app.post('/sitter/create', controller.createSitter);
 app.post('/sitter/update', controller.updateSitter);
 app.delete('/sitter/delete', controller.deleteSitter);

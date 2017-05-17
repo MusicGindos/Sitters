@@ -117,12 +117,13 @@ let computeMatchScore = function(parent,sitter,filter,distance) {  // make compu
 let computeScore = function(parent,sitter,filter,distance,callback){ // compute match score between sitter-parent-child
     init();
     if(parent.children.age < sitter.minAge || parent.children.age > sitter.maxAge || sitter.hourFee > parent.maxPrice){
+        parent.blacklist.push(sitter._id);
+        db.addSitterToBlacklist(parent);
         finish = false;
         callback(0);
         return;
     }
     else if( ((distance.distanceValue / 1000) > 50 ) || (parent.preferedGender !== "both" && parent.preferedGender !== sitter.gender))  {
-        console.log('blacklist-distance');
         parent.blacklist.push(sitter._id);
         db.addSitterToBlacklist(parent);
         finish = false;
@@ -203,13 +204,27 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     else{
         matchData.push({ name: 'Education', value: 50});
     }
-
-    //let personalitySameQuestions = [];
-    // for(let index = 0; index < 3; index++){ // TODO: when all questions is up change for loop to 10
-    //     if(personalityParent.questions[index].value === personalitySitter.questions[index].value){
-    //         personalitySameQuestions.push(personalitySitter.questions[index]);
-    //     }
-    // }
+    let sameQuestions = 0;
+    for(let i = 0; i< sitter.personalityTest.questions.length; i++){
+        if(sitter.personalityTest.questions[i].value === parent.personalityTest.questions[i].value)
+            sameQuestions++;
+    }
+    if(sameQuestions === 0){ // add sitter to blacklist
+        let mutualFriend = false
+        for(let i = 0; i < parent.mutualFriends.length; i++){
+            if(parent.mutualFriends[i].id === sitter._id){
+                mutualFriend = true;
+                break;
+            }
+        }
+        if(!mutualFriend){
+            parent.blacklist.push(sitter._id);
+            db.addSitterToBlacklist(parent);
+            finish = false;
+            callback(0);
+            return;
+        }
+    }
     let testScore = 0;
     let testScoreDifference = Math.abs(parent.personalityTest.totalScore -  sitter.personalityTest.totalScore);
     if(testScoreDifference <= 10){

@@ -53,6 +53,7 @@ let personalityTest = new Schema({
 
 
 let notification = new Schema({
+    _id: String,
     message: String,
     wasRead: Boolean,
     date: Date,

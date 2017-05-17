@@ -7,6 +7,7 @@ let matcher         = require('../matcher'),
     clone           = require('clone'),
     Parent = require('../schemas/parent').Parent,
     Sitter = require('../schemas/sitter').sitterModel;
+var uuid = require("uuid");
 
 let MESSAGE_NEW = "New Sitter Available";
 let MESSAGE_UPDATE = "One Of your Sitters Updated His Data";
@@ -24,6 +25,7 @@ exports.newNotification = (sitter) => {
                 const match = clone(matcher.calculateMatchingScore(parent, s));
                 if(match.matchScore > 0) {
                     const notification = {
+                        _id: uuid.v1(),
                         message: MESSAGE_NEW,
                         wasRead: false,
                         date: new Date().getTime(),

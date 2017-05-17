@@ -55,37 +55,6 @@ db.once('open', function () { // if needed to do action once got connection
 
 });
 
-let Hours = {
-    "sunday": {
-        "start": "09:30",
-        "finish": "12:00"
-    },
-    "monday": {
-        "start": "12:30",
-        "finish": "20:00"
-    },
-    "tuesday": {
-        "start": "18:00",
-        "finish": "23:00"
-    },
-    "wednesday": {
-        "start": "08:00",
-        "finish": "19:00"
-    },
-    "thursday": {
-        "start": "12:00",
-        "finish": "16:00"
-    },
-    "friday": {
-        "start": "13:00",
-        "finish": "18:00"
-    },
-    "saturday": {
-        "start": "08:00",
-        "finish": "23:00"
-    }
-};
-
 //Parent
 exports.createParent = (req, res) => {
     let parent = new Parent(req.body);
@@ -166,7 +135,7 @@ exports.getParents = () => {
             console.log(err);
         }
         else {
-           return parents;
+            return parents;
         }
     });
 };
@@ -175,7 +144,7 @@ exports.addSitterToBlacklist = (parent) => {
     Parent.findOne().where('_id', parent._id).exec(function (err, doc) {
         doc.update({$set: parent}).exec(function (err) {
             if (err) {
-               console.log(err);
+                console.log(err);
             }
             else {
                 console.log('blacklist updated');
@@ -183,6 +152,52 @@ exports.addSitterToBlacklist = (parent) => {
         });
     });
 };
+
+function setMutualFriends(parent) {
+    Parent.findOne().where('_id', parent._id).exec(function (err, doc) {
+        doc.update({$set: parent}).exec(function (err) {
+            if (err) {
+                console.log(err);
+            }
+            else {
+                console.log('mutual friends updated');
+            }
+        });
+    });
+};
+
+// Sitter.find(function (err, sitters) {
+exports.updateMutualFriends = (req, res) => {
+    let parent = req.body;
+    Parent.find(function (err, parents) {
+        if (err) {
+            console.log(err);
+        }
+        else{
+            Sitter.find(function (err, sitters) {
+                if (err) { // the user doesn't exists
+                    console.log(err);
+                }
+                else {
+                    let users = _.union(parents,sitters);
+                    for(let index = 0; index < parent.mutualFriends.length; index++){
+                        for(let j = 0; j < users.length; j++){
+                            if(users[j]._id === parent.mutualFriends[index].id){
+                                parent.mutualFriends[index].picture = users[j].profilePicture;
+                                break;
+                            }
+                        }
+                    }
+                    setMutualFriends(parent);
+                    status(res,"mutual friends updated");
+                }
+            });
+        }
+
+    });
+};
+
+
 
 //Sitter
 exports.createSitter = (req, res) => {
