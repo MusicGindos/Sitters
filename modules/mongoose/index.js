@@ -201,8 +201,6 @@ exports.updateMutualFriends = (req, res) => {
 
 //Sitter
 exports.createSitter = (req, res) => {
-    // let s = req.body;
-    // s.workingHours = Hours;
     let sitter = new Sitter(req.body);
     sitter.save(function (err) {
         if (err) {
