@@ -30,10 +30,6 @@ let invite = new Schema({
     wasRead: Boolean,
     sitterID:   {type:String, required: true},
     parentID:   {type:String, required: true},
-    recurring:  {
-        workingHours: hours,
-        until: Date
-    },
     notes: String,
     sitterName: String,
     sitterImage: String

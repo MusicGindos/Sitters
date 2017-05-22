@@ -280,23 +280,25 @@ exports.getUser = (req, res) => {
 };
 
 exports.sendInvite = (req, res, next) => {
-    Parent.findOne().where('_id', req.body.parentID).exec(function (err, parent) {
+    const parentID = req.body[0].parentID;
+    const sitterID = req.body[0].sitterID;
+    Parent.findOne().where('_id', parentID).exec(function (err, parent) {
         if (err) {
             error(res, err);
         }
         else {
-            parent._doc.invites.push(req.body);
+            parent.invites = _.union(parent.invites, req.body);
             parent.update({$set: parent}).exec(function (err) {
                 if (err) {
                     error(res,err);
                 }
                 else {
-                    Sitter.findOne().where('_id', req.body.sitterID).exec(function (err, sitter) {
+                    Sitter.findOne().where('_id', sitterID).exec(function (err, sitter) {
                         if (err) {
                             error(res,err);
                         }
                         else {
-                            sitter._doc.invites.push(req.body);
+                            sitter.invites = _.union(sitter.invites, req.body);
                             sitter._doc.lastInvite = moment().format("DD/MM/YYYY");
                             sitter.update({$set: sitter}).exec(function (err) {
                                 if (err) {
