@@ -32,7 +32,10 @@ let invite = new Schema({
     parentID:   {type:String, required: true},
     notes: String,
     sitterName: String,
-    sitterImage: String
+    sitterImage: String,
+    parentImage: String,
+    parentName: String,
+    childName: String
 });
 
 let question = new Schema({
@@ -85,7 +88,8 @@ let user = new Schema({
     timezone:       String,
     notifications: [notification],
     invites:        [invite],
-    mutualFriends: [friend]
+    mutualFriends: [friend],
+    isParent:       Boolean
 });
 User = mongoose.model('User', user);
 

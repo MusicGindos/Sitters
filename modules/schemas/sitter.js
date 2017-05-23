@@ -22,6 +22,12 @@ let Review = new Schema({
     rates: Rates
 });
 
+let Settings = new Schema({
+    allowNotification: {type: Boolean, default: true },
+    allowSuggestions: {type: Boolean, default: true },
+    allowShowOnSearch: {type:Boolean, default: true}
+},{_id : false});
+
 let address = new Schema({
     city:       String,
     street:     String,
@@ -46,6 +52,7 @@ let sitter = base.user.extend({
     lastInvite:     String,
     address:        address,
     personalityTest: base.personalityTest,
+    settings:       Settings
 },{collection:"sitters"});
 
 Sitter = mongoose.model('Sitter', sitter);
