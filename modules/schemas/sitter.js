@@ -51,6 +51,7 @@ let sitter = base.user.extend({
     lastInvite: String,
     address: address,
     personalityTest: base.personalityTest,
+    motto: String,
     settings: Settings
 }, {collection: "sitters"});
 
