@@ -1,47 +1,47 @@
 'use strict';
 
-let express		    = require('express'),
-    fs			    = require('fs'),
-    _               = require('lodash'),
-    googleDistance  = require('google-distance'),
-    finish          = true,
-    maindata        = null,
-    origin          = null,
-    destination     = null,
-    distance        = null,
-    generalScore    = 0,
-    proximityScore   = null,
+let express = require('express'),
+    fs = require('fs'),
+    _ = require('lodash'),
+    googleDistance = require('google-distance'),
+    finish = true,
+    maindata = null,
+    origin = null,
+    destination = null,
+    distance = null,
+    generalScore = 0,
+    proximityScore = null,
     experienceScore = null,
-    sameHobbies    = 0,
-    sameExpertise  = null,
+    sameHobbies = 0,
+    sameExpertise = null,
     collegeScore = 0,
     highSchoolScore = 0,
-    matchData       = [],
-    db              = require('../mongoose');
+    matchData = [],
+    db = require('../mongoose');
 
-let init = function(){
+let init = function () {
     finish = true,
-        maindata = origin = destination = distance = proximityScore = experienceScore = sameExpertise  = null,
+        maindata = origin = destination = distance = proximityScore = experienceScore = sameExpertise = null,
         sameHobbies = generalScore = collegeScore = highSchoolScore = 0,
-        matchData       = []
+        matchData = []
 };
 let scoreSet = {
-    default:{
+    default: {
         proximity: 0.2,
         experience: 0.35,
         personalityTest: 0.35,
         college: 0.05,
         highSchool: 0.05
     },
-    withoutExpertise:{
+    withoutExpertise: {
         proximity: 0.2,
         experience: 0.35,
         personalityTest: 0.25,
         college: 0.05,
         highSchool: 0.05,
-        hobbies:  0.1
+        hobbies: 0.1
     },
-    withoutHobbies:{
+    withoutHobbies: {
         proximity: 0.2,
         experience: 0.35,
         personalityTest: 0.25,
@@ -49,7 +49,7 @@ let scoreSet = {
         highSchool: 0.05,
         expertise: 0.1
     },
-    withExpertiseAndHobbies:{
+    withExpertiseAndHobbies: {
         proximity: 0.2,
         experience: 0.35,
         personalityTest: 0.25,
@@ -60,13 +60,13 @@ let scoreSet = {
     },
 };
 
-let computeSync = function(origin,destination,callback){  // google-distance is async and we need it to be sync so we use wrapper with flag
+let computeSync = function (origin, destination, callback) {  // google-distance is async and we need it to be sync so we use wrapper with flag
     googleDistance.apiKey = "AIzaSyBwP7ZYyCO86H41nE-E5eHYPCDir9yBpc0";  // google-distance apikey for make more calls
     googleDistance.get({  // compute distance between 2 locations, can be street-houseNumber-city OR latitude/longitude
             origin: origin,
             destination: destination
         },
-        function(err, data) {
+        function (err, data) {
             if (err) {
                 console.error(err);
                 return;
@@ -77,36 +77,36 @@ let computeSync = function(origin,destination,callback){  // google-distance is 
         });
 };
 
-let computeDistance = function(origin,destination) { // make compute distance sync with flag and while loop
-    computeSync(origin,destination, function(result){
+let computeDistance = function (origin, destination) { // make compute distance sync with flag and while loop
+    computeSync(origin, destination, function (result) {
         maindata = result;
     });
-    while(finish) {
+    while (finish) {
         require('deasync').sleep(100); // sync for google-distance api
     }
     finish = true; // for next sync call
     return maindata;
 };
 
-let computeMatchScore = function(parent,sitter,filter,distance) {  // make compute score sync with flag and while loop
-    if(parent.address.latitude != 0 && parent.address.longitude != 0){  // compute by latitude and longitude
+let computeMatchScore = function (parent, sitter, filter, distance) {  // make compute score sync with flag and while loop
+    if (parent.address.latitude != 0 && parent.address.longitude != 0) {  // compute by latitude and longitude
         origin = parent.address.latitude + ',' + parent.address.longitude
     }
-    else{ //compute by address
+    else { //compute by address
         origin = parent.address.street + ' ' + parent.address.houseNumber + ' ' + parent.address.city;
     }
-    if(sitter.address.latitude != 0 && sitter.address.longitude != 0){// compute by latitude and longitude
+    if (sitter.address.latitude != 0 && sitter.address.longitude != 0) {// compute by latitude and longitude
         destination = sitter.address.latitude + ',' + sitter.address.longitude
     }
-    else{ //compute by address
+    else { //compute by address
         destination = sitter.address.street + ' ' + sitter.address.houseNumber + ' ' + sitter.address.city;
     }
 
-    distance = computeDistance(origin,destination);
-    computeScore(parent,sitter,filter,distance, function(result){
+    distance = computeDistance(origin, destination);
+    computeScore(parent, sitter, filter, distance, function (result) {
         maindata = result;
     });
-    while(finish) {
+    while (finish) {
         require('deasync').sleep(100);
     }
     finish = true; // for next sync call
@@ -114,25 +114,26 @@ let computeMatchScore = function(parent,sitter,filter,distance) {  // make compu
 };
 
 
-let computeScore = function(parent,sitter,filter,distance,callback){ // compute match score between sitter-parent-child
+let computeScore = function (parent, sitter, filter, distance, callback) { // compute match score between sitter-parent-child
+    let mutualFriends = [];
     init();
-    if(parent.children.age < sitter.minAge || parent.children.age > sitter.maxAge || sitter.hourFee > parent.maxPrice){
+    if (parent.children.age < sitter.minAge || parent.children.age > sitter.maxAge || sitter.hourFee > parent.maxPrice) {
         parent.blacklist.push(sitter._id);
         db.addSitterToBlacklist(parent);
         finish = false;
         callback(0);
         return;
     }
-    else if( ((distance.distanceValue / 1000) > 50 ) || (parent.preferedGender !== "both" && parent.preferedGender !== sitter.gender))  {
+    else if (((distance.distanceValue / 1000) > 50 ) || (parent.preferedGender !== "both" && parent.preferedGender !== sitter.gender)) {
         parent.blacklist.push(sitter._id);
         db.addSitterToBlacklist(parent);
         finish = false;
         callback(0);
         return;
     }
-    if(typeof parent.children.specialNeeds !== "undefined"){
+    if (typeof parent.children.specialNeeds !== "undefined") {
         for (let i = 0, len = parent.children.specialNeeds.length; i < len; i++) {
-            if (_.indexOf(sitter.specialNeeds, parent.children.specialNeeds[i]) == -1){
+            if (_.indexOf(sitter.specialNeeds, parent.children.specialNeeds[i]) == -1) {
                 finish = false;
                 callback(0);
                 return;
@@ -144,80 +145,80 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
     //proximity score
     distance = distance.distance.split(' ');
     distance = Number(distance[0]);  // distance between 2 locations with google-distance
-    if(distance <= 5)   // calculate location score
+    if (distance <= 5)   // calculate location score
         proximityScore = 100;
-    else{
-        proximityScore = 100 - ((distance-5) * 2); //for each added 1 km more than 5, reduce 2
+    else {
+        proximityScore = 100 - ((distance - 5) * 2); //for each added 1 km more than 5, reduce 2
     }
-    if(proximityScore < 0)  // if the sitter is more than 50 kilometer from thr child address
+    if (proximityScore < 0)  // if the sitter is more than 50 kilometer from thr child address
         proximityScore = 0;
-    matchData.push({ name: 'Proximity', value: Math.round(proximityScore)});
+    matchData.push({name: 'Proximity', value: Math.round(proximityScore)});
 
     //experience score
-    if(sitter.experience >= 4)  // calculate experience by years
+    if (sitter.experience >= 4)  // calculate experience by years
         experienceScore = 100;
-    else if(sitter.experience >= 3)
+    else if (sitter.experience >= 3)
         experienceScore = 90;
-    else if(sitter.experience >= 2)
+    else if (sitter.experience >= 2)
         experienceScore = 75;
-    else if(sitter.experience >= 1)
+    else if (sitter.experience >= 1)
         experienceScore = 60;
-    else if(sitter.experience >= 0)
+    else if (sitter.experience >= 0)
         experienceScore = 0;
-    matchData.push({ name: 'Experience', value: Math.round(experienceScore)});
+    matchData.push({name: 'Experience', value: Math.round(experienceScore)});
 
     //hobbies score
-    if(typeof parent.children.hobbies !== "undefined" && parent.children.hobbies.length > 0 && sitter.hobbies.length > 0){  // calculate hobbies match of the sitter with child
-        _.forEach(parent.children.hobbies, function(hobbie) {
-            if(_.indexOf(sitter.hobbies,hobbie) > -1){ // check if sitter have the hobbie
+    if (typeof parent.children.hobbies !== "undefined" && parent.children.hobbies.length > 0 && sitter.hobbies.length > 0) {  // calculate hobbies match of the sitter with child
+        _.forEach(parent.children.hobbies, function (hobbie) {
+            if (_.indexOf(sitter.hobbies, hobbie) > -1) { // check if sitter have the hobbie
                 sameHobbies++;
             }
         });
     }
-    else{
+    else {
         sameHobbies = -1;  // children don't have any hobbies
     }
 
     //expertise score
-    if(typeof parent.children.expertise !== "undefined" && parent.children.expertise.length > 0 && sitter.expertise.length > 0){
-        _.forEach(parent.children.expertise, function(exp) {
-            if(_.indexOf(sitter.expertise,exp) > -1){ // check if sitter have the expertise
+    if (typeof parent.children.expertise !== "undefined" && parent.children.expertise.length > 0 && sitter.expertise.length > 0) {
+        _.forEach(parent.children.expertise, function (exp) {
+            if (_.indexOf(sitter.expertise, exp) > -1) { // check if sitter have the expertise
                 sameExpertise++;
             }
         });
     }
-    else{
+    else {
         sameExpertise = -1;  // children don't have any expertise
     }
-    if(sitter.mobility)
+    if (sitter.mobility)
         generalScore += 5;
 
-    if(_.indexOf(sitter.education,'college') !== -1) {
+    if (_.indexOf(sitter.education, 'college') !== -1) {
         collegeScore = 5;
         generalScore += 5;
     }
-    if(_.indexOf(sitter.education,'highSchool') !== -1){
+    if (_.indexOf(sitter.education, 'highSchool') !== -1) {
         highSchoolScore = 5;
         generalScore += 5;
-        matchData.push({ name: 'Education', value: 100});
+        matchData.push({name: 'Education', value: 100});
     }
-    else{
-        matchData.push({ name: 'Education', value: 50});
+    else {
+        matchData.push({name: 'Education', value: 50});
     }
     let sameQuestions = 0;
-    for(let i = 0; i< sitter.personalityTest.questions.length; i++){
-        if(sitter.personalityTest.questions[i].value === parent.personalityTest.questions[i].value)
+    for (let i = 0; i < sitter.personalityTest.questions.length; i++) {
+        if (sitter.personalityTest.questions[i].value === parent.personalityTest.questions[i].value)
             sameQuestions++;
     }
-    if(sameQuestions === 0){ // add sitter to blacklist
+    if (sameQuestions === 0) { // add sitter to blacklist
         let mutualFriend = false
-        for(let i = 0; i < parent.mutualFriends.length; i++){
-            if(parent.mutualFriends[i].id === sitter._id){
+        for (let i = 0; i < parent.mutualFriends.length; i++) {
+            if (parent.mutualFriends[i].id === sitter._id) {
                 mutualFriend = true;
                 break;
             }
         }
-        if(!mutualFriend){
+        if (!mutualFriend) {
             parent.blacklist.push(sitter._id);
             db.addSitterToBlacklist(parent);
             finish = false;
@@ -226,38 +227,38 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
         }
     }
     let testScore = 0;
-    let testScoreDifference = Math.abs(parent.personalityTest.totalScore -  sitter.personalityTest.totalScore);
-    if(testScoreDifference <= 10){
+    let testScoreDifference = Math.abs(parent.personalityTest.totalScore - sitter.personalityTest.totalScore);
+    if (testScoreDifference <= 10) {
         testScore = 100;
     }
-    else if(testScoreDifference > 10 && testScoreDifference <= 20){
+    else if (testScoreDifference > 10 && testScoreDifference <= 20) {
         testScore = 80;
     }
-    else if(testScoreDifference > 20 && testScoreDifference <= 30){
+    else if (testScoreDifference > 20 && testScoreDifference <= 30) {
         testScore = 60;
     }
-    else if(testScoreDifference > 30){
+    else if (testScoreDifference > 30) {
         testScore = 40;
     }
-    matchData.push({ name: 'Personality', value: testScore});
+    matchData.push({name: 'Personality', value: testScore});
 
-    if(sameHobbies > 0){
-        if(sameExpertise > 0) { // hobbies and expertise score set
-            if(sameHobbies > 1){
+    if (sameHobbies > 0) {
+        if (sameExpertise > 0) { // hobbies and expertise score set
+            if (sameHobbies > 1) {
                 generalScore += scoreSet.withExpertiseAndHobbies.hobbies * 100;
-                matchData.push({ name: 'Hobbies', value: 100});
+                matchData.push({name: 'Hobbies', value: 100});
             }
-            else{
+            else {
                 generalScore += scoreSet.withExpertiseAndHobbies.hobbies * 50;
-                matchData.push({ name: 'Hobbies', value: 50});
+                matchData.push({name: 'Hobbies', value: 50});
             }
-            if(sameExpertise > 1){
+            if (sameExpertise > 1) {
                 generalScore += scoreSet.withExpertiseAndHobbies.expertise * 100;
-                matchData.push({ name: 'Expertise', value: 100});
+                matchData.push({name: 'Expertise', value: 100});
             }
-            else{
+            else {
                 generalScore += scoreSet.withExpertiseAndHobbies.expertise * 50;
-                matchData.push({ name: 'Expertise', value: 50});
+                matchData.push({name: 'Expertise', value: 50});
             }
             generalScore += scoreSet.withExpertiseAndHobbies.college * collegeScore;
             generalScore += scoreSet.withExpertiseAndHobbies.experience * experienceScore;
@@ -265,14 +266,14 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
             generalScore += scoreSet.withExpertiseAndHobbies.proximity * proximityScore;
             generalScore += scoreSet.withExpertiseAndHobbies.personalityTest * testScore;
         }
-        else{ // hobbies score set
-            if(sameHobbies > 1){
+        else { // hobbies score set
+            if (sameHobbies > 1) {
                 generalScore += scoreSet.withExpertiseAndHobbies.hobbies * 100;
-                matchData.push({ name: 'Hobbies', value: 100});
+                matchData.push({name: 'Hobbies', value: 100});
             }
-            else{
+            else {
                 generalScore += scoreSet.withExpertiseAndHobbies.hobbies * 50;
-                matchData.push({ name: 'Hobbies', value: 50});
+                matchData.push({name: 'Hobbies', value: 50});
             }
             generalScore += scoreSet.withoutExpertise.college * collegeScore;
             generalScore += scoreSet.withoutExpertise.experience * experienceScore;
@@ -281,14 +282,14 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
             generalScore += scoreSet.withoutExpertise.personalityTest * testScore;
         }
     }
-    else if(sameExpertise > 0){// expertise score set
-        if(sameExpertise > 1){
+    else if (sameExpertise > 0) {// expertise score set
+        if (sameExpertise > 1) {
             generalScore += scoreSet.withExpertiseAndHobbies.expertise * 100;
-            matchData.push({ name: 'Expertise', value: 100});
+            matchData.push({name: 'Expertise', value: 100});
         }
-        else{
+        else {
             generalScore += scoreSet.withExpertiseAndHobbies.expertise * 50;
-            matchData.push({ name: 'Expertise', value: 50});
+            matchData.push({name: 'Expertise', value: 50});
         }
         generalScore += scoreSet.withoutHobbies.college * collegeScore;
         generalScore += scoreSet.withoutHobbies.experience * experienceScore;
@@ -296,39 +297,41 @@ let computeScore = function(parent,sitter,filter,distance,callback){ // compute 
         generalScore += scoreSet.withoutHobbies.proximity * proximityScore;
         generalScore += scoreSet.withoutHobbies.personalityTest * testScore;
     }
-    else{ // default score set
+    else { // default score set
         generalScore += scoreSet.default.college * collegeScore;
         generalScore += scoreSet.default.experience * experienceScore;
         generalScore += scoreSet.default.highSchool * highSchoolScore;
         generalScore += scoreSet.default.proximity * proximityScore;
         generalScore += scoreSet.default.personalityTest * testScore;
-    };
-    if(generalScore > 100) // more than 100% match with the bonuses
+    }
+    ;
+    if (generalScore > 100) // more than 100% match with the bonuses
         generalScore = 100;
-    else{
-        if(sitter.mutualFriends.length > 0){
-            let mutualFriendsScore = (sitter.mutualFriends.length * 2) > 10? 10: sitter.mutualFriends.length *2;
-            matchData.push({ name: 'Mutual Friends', value: mutualFriendsScore * 10});
-            if((generalScore + mutualFriendsScore ) > 100)
+    else {
+        if (sitter.mutualFriends.length > 0 && parent.mutualFriends.length > 0) {
+            mutualFriends = _.unionBy(parent.mutualFriends, sitter.mutualFriends, 'id');
+            let mutualFriendsScore = (mutualFriends.length * 2) > 10 ? 10 : mutualFriends.length * 2;
+            matchData.push({name: 'Mutual Friends', value: mutualFriendsScore * 10});
+            if ((generalScore + mutualFriendsScore ) > 100)
                 mutualFriendsScore = 100 - generalScore;
             generalScore += mutualFriendsScore;
-
         }
     }
     finish = false;  // exit the sync loop
     let match = {};
     match.matchScore = Math.ceil(generalScore);
     match.data = _.orderBy(matchData, ['value'], ['desc']);
+    match.mutualFriends = mutualFriends;
     callback(match);
 };
 
-exports.calculateMatchingScore = function(parent,sitter){
+exports.calculateMatchingScore = function (parent, sitter) {
     sitter.address = sitter.address._doc;
-    let match = computeMatchScore(parent,sitter,null,distance);
-    if(match.matchScore == 0){
-        return {"matchScore":0};  // no match
+    let match = computeMatchScore(parent, sitter, null, distance);
+    if (match.matchScore == 0) {
+        return {"matchScore": 0};  // no match
     }
-    else{
-        return  match;
+    else {
+        return match;
     }
 };
