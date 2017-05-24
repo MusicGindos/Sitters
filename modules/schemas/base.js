@@ -35,7 +35,7 @@ let invite = new Schema({
     sitterImage: String,
     parentImage: String,
     parentName: String,
-    childName: String
+    childName: String,
 });
 
 let question = new Schema({

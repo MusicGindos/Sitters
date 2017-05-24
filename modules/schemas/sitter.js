@@ -23,8 +23,7 @@ let Review = new Schema({
 });
 
 let Settings = new Schema({
-    allowNotification: {type: Boolean, default: true },
-    allowSuggestions: {type: Boolean, default: true },
+    allowNotification: {type: Boolean, default: true},
     allowShowOnSearch: {type:Boolean, default: true}
 },{_id : false});
 
