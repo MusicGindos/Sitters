@@ -57,7 +57,7 @@ let notification = new Schema({
     date: Date,
     sitterName: String,
     sitterID: String,
-    sitterPicture: String
+    sitterImage: String
 }, {_id: false});
 
 let matchBI = new Schema({
