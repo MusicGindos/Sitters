@@ -31,6 +31,7 @@
     "mongoose-schema-extend": "^0.2.2",
     "shortid": "^2.2.6",
     "shuffle-array": "^1.0.1",
-    "uuid": "^3.0.1"
+    "uuid": "^3.0.1",
+    "web-push": "^3.2.2"
   }
 }

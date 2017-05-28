@@ -1,10 +1,11 @@
 'use strict';
 
-let mongoose        = require('../modules/mongoose'),
+const mongoose        = require('../modules/mongoose'),
     personalityTest = require('../modules/personalityTest'),
     fs              = require('fs'),
     suggest         = require('../modules/suggestions'),
-    axios           = require("axios");
+    axios           = require("axios"),
+    webpush         = require('web-push');
 
 let error = (next, msg, status) => {
     let err = new Error();
@@ -45,26 +46,23 @@ exports.getParent = (req, res, next) => {
 };
 
 exports.notifications = (req, res, next) => {
-    //mongoose.notifications(req,res,next);
-    axios({
-        method: 'post',
-        url: 'https://fcm.googleapis.com/fcm/send/cW2cKehQ8CQ:APA91bGkWeWQlgVEvwZUF4uoPFzddY3PX04_Wy-yV-TIgI7fLWrTqTVp5q4XXx5DNcmwsP6S6y_uqLTA0yp4t7uj5EeJQtLI_AzMRbkONOmv9pyEH-CY9wTDoHndo4Ey7MiSDTdrPk6T',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json',
-            'Content-Length': '0',
-            'TTL': '60',
-            'Authorization': 'WebPush eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL2ZjbS5nb29nbGVhcGlzLmNvbSIsImV4cCI6MTQ5NTA5NDU2NCwic3ViIjoibWFpbHRvOnNpbXBsZS1wdXNoLWRlbW9AZ2F1bnRmYWNlLmNvLnVrIn0.8qCZ88y0NUEmmQxKfXFV5AYyKuURYAio6eewlnRAlXAxrzbUxFgDfDbzcy986m3Nw-_1NIyqZ67uQf0MCdQAUQ',
-            'Crypto-Key':'p256ecdsa=BDd3_hVL9fZi9Ybo2UUzA284WG5FZR30_95YeZJsiApwXKpNcF1rRPF3foIiBHXRdJI2Qhumhf6_LFTeZaNndIo'
-        },
-    }).then(function (res) {
-        console.log("hello");
-        res.json({'status':"successfully"});
-    })
-        .catch(function (error) {
-            console.log(error);
-            //TODO: think about error when user not created
-        });
+    //const vapidKeys = webpush.generateVAPIDKeys();
+    webpush.setGCMAPIKey('AIzaSyC_cF6XxPyOpQXdM01txENJsPfLQ61lDzE'); // const
+    webpush.setVapidDetails(
+        'mailto:arel-g@hotmail.com', // const
+        "BA9TXkOAudBsHZCtma-VftBiXmAc-Ho4M7SwAXRpZDR-DsE6pdMP_HVTTQaa3vkQuHLcB6hB87yiunJFUEa4Pas", // const
+        "9wDAtLKaQZh08dyQzkLkXHnLSGbMeeLA0TErWrE_Gjw"
+        // vapidKeys.publicKey,
+        // vapidKeys.privateKey
+    );
+    const pushSubscription = {
+        endpoint: 'https://fcm.googleapis.com/fcm/send/e-xBke4VOxk:APA91bGwl04HFVHQan_PUI1rbpeiC-yjzFJ3dxr1mjJH1m-KWV-aYpRhet2B-mKG06gS-3JkGLlaoWC4AKzY7A68hteHeXrLPVAOb7e-xgZkbB7h_EDniCr_sZTQLF2Kf94jUN_mWjCe',
+        keys: {
+            auth: 'lNBOO2Yuo2irX1JyHquPWg==',
+            p256dh: 'BIzXr1Qj_NEbtqL4RR2xJEYkAGqeGUCCWBHlXMOtzkKgDZj7cUI6KVnd_KbXXYvOPhQlkyuqLRhmSoeoBTaHDFM='
+        }
+    };
+    webpush.sendNotification(pushSubscription, 'Your Push Payload Text');
 };
 
 exports.getUser = (req, res, next) => {
@@ -79,8 +77,6 @@ exports.getMatches = (req, res, next) => {
 exports.updateMutualFriends = (req, res, next) => {
     mongoose.updateMutualFriends(req,res,next);
 };
-
-
 
 exports.sendInvite = (req, res, next) => {
     mongoose.sendInvite(req,res,next);

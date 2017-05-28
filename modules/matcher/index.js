@@ -264,7 +264,7 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
             generalScore += scoreSet.withExpertiseAndHobbies.experience * experienceScore;
             generalScore += scoreSet.withExpertiseAndHobbies.highSchool * highSchoolScore;
             generalScore += scoreSet.withExpertiseAndHobbies.proximity * proximityScore;
-            generalScore += scoreSet.withExpertiseAndHobbies.personalityTest * testScore;
+            //generalScore += scoreSet.withExpertiseAndHobbies.personalityTest * testScore;
         }
         else { // hobbies score set
             if (sameHobbies > 1) {
@@ -279,7 +279,7 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
             generalScore += scoreSet.withoutExpertise.experience * experienceScore;
             generalScore += scoreSet.withoutExpertise.highSchool * highSchoolScore;
             generalScore += scoreSet.withoutExpertise.proximity * proximityScore;
-            generalScore += scoreSet.withoutExpertise.personalityTest * testScore;
+           // generalScore += scoreSet.withoutExpertise.personalityTest * testScore;
         }
     }
     else if (sameExpertise > 0) {// expertise score set

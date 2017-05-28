@@ -35,6 +35,7 @@ let address = new Schema({
     longitude: {type: Number, default: 0}
 }, {_id: false});
 
+
 let sitter = base.user.extend({
     education: [String],
     minAge: {type: Number, required: true, default: 0},
@@ -52,7 +53,8 @@ let sitter = base.user.extend({
     address: address,
     personalityTest: base.personalityTest,
     motto: String,
-    settings: Settings
+    settings: Settings,
+    multipleInvites: Object
 }, {collection: "sitters"});
 
 Sitter = mongoose.model('Sitter', sitter);
