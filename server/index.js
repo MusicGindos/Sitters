@@ -80,6 +80,8 @@ exports.updateMutualFriends = (req, res, next) => {
     mongoose.updateMutualFriends(req,res,next);
 };
 
+
+
 exports.sendInvite = (req, res, next) => {
     mongoose.sendInvite(req,res,next);
 };

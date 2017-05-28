@@ -326,7 +326,7 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
 };
 
 exports.calculateMatchingScore = function (parent, sitter) {
-    sitter.address = sitter.address._doc;
+    //sitter.address = sitter.address._doc;
     let match = computeMatchScore(parent, sitter, null, distance);
     if (match.matchScore == 0) {
         return {"matchScore": 0};  // no match

@@ -35,6 +35,7 @@ app.post('/sitter/create', controller.createSitter);
 app.post('/sitter/update', controller.updateSitter);
 app.delete('/sitter/delete', controller.deleteSitter);
 app.post('/sitter/get', controller.getSitter);
+app.post('/sitter/updateMutualFriends', controller.updateMutualFriends);
 app.post('/user/getUser', controller.getUser);
 app.post('/invite/create', controller.sendInvite);
 app.get('*', (req,res,next) => {

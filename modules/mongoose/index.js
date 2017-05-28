@@ -153,22 +153,36 @@ exports.addSitterToBlacklist = (parent) => {
     });
 };
 
-function setMutualFriends(parent) {
-    Parent.findOne().where('_id', parent._id).exec(function (err, doc) {
-        doc.update({$set: parent}).exec(function (err) {
-            if (err) {
-                console.log(err);
-            }
-            else {
-                console.log('mutual friends updated');
-            }
+function setMutualFriends(user) {
+    if(user.isParent){
+        Parent.findOne().where('_id', user._id).exec(function (err, doc) {
+            doc.update({$set: user}).exec(function (err) {
+                if (err) {
+                    console.log(err);
+                }
+                else {
+                    console.log('mutual friends updated');
+                }
+            });
         });
-    });
+    }
+    else{
+        Sitter.findOne().where('_id', user._id).exec(function (err, doc) {
+            doc.update({$set: user}).exec(function (err) {
+                if (err) {
+                    console.log(err);
+                }
+                else {
+                    console.log('mutual friends updated');
+                }
+            });
+        });
+    }
+
 };
 
-// Sitter.find(function (err, sitters) {
 exports.updateMutualFriends = (req, res) => {
-    let parent = req.body;
+    let user = req.body;
     Parent.find(function (err, parents) {
         if (err) {
             console.log(err);
@@ -180,15 +194,15 @@ exports.updateMutualFriends = (req, res) => {
                 }
                 else {
                     let users = _.union(parents,sitters);
-                    for(let index = 0; index < parent.friends.length; index++){
+                    for(let index = 0; index < user.friends.length; index++){
                         for(let j = 0; j < users.length; j++){
-                            if(users[j]._id === parent.friends[index].id){
-                                parent.friends[index].picture = users[j].profilePicture;
+                            if(users[j]._id === user.friends[index].id){
+                                user.friends[index].picture = users[j].profilePicture;
                                 break;
                             }
                         }
                     }
-                    setMutualFriends(parent);
+                    setMutualFriends(user);
                     status(res,"friends updated");
                 }
             });
@@ -196,8 +210,6 @@ exports.updateMutualFriends = (req, res) => {
 
     });
 };
-
-
 
 //Sitter
 exports.createSitter = (req, res) => {
