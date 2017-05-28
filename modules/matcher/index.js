@@ -205,42 +205,42 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
     else {
         matchData.push({name: 'Education', value: 50});
     }
-    let sameQuestions = 0;
-    for (let i = 0; i < sitter.personalityTest.questions.length; i++) {
-        if (sitter.personalityTest.questions[i].value === parent.personalityTest.questions[i].value)
-            sameQuestions++;
-    }
-    if (sameQuestions === 0) { // add sitter to blacklist
-        let mutualFriend = false
-        for (let i = 0; i < parent.mutualFriends.length; i++) {
-            if (parent.mutualFriends[i].id === sitter._id) {
-                mutualFriend = true;
-                break;
-            }
-        }
-        if (!mutualFriend) {
-            parent.blacklist.push(sitter._id);
-            db.addSitterToBlacklist(parent);
-            finish = false;
-            callback(0);
-            return;
-        }
-    }
-    let testScore = 0;
-    let testScoreDifference = Math.abs(parent.personalityTest.totalScore - sitter.personalityTest.totalScore);
-    if (testScoreDifference <= 10) {
-        testScore = 100;
-    }
-    else if (testScoreDifference > 10 && testScoreDifference <= 20) {
-        testScore = 80;
-    }
-    else if (testScoreDifference > 20 && testScoreDifference <= 30) {
-        testScore = 60;
-    }
-    else if (testScoreDifference > 30) {
-        testScore = 40;
-    }
-    matchData.push({name: 'Personality', value: testScore});
+    // let sameQuestions = 0;
+    // for (let i = 0; i < sitter.personalityTest.questions.length; i++) {
+    //     if (sitter.personalityTest.questions[i].value === parent.personalityTest.questions[i].value)
+    //         sameQuestions++;
+    // }
+    // if (sameQuestions === 0) { // add sitter to blacklist
+    //     let mutualFriend = false
+    //     for (let i = 0; i < parent.mutualFriends.length; i++) {
+    //         if (parent.mutualFriends[i].id === sitter._id) {
+    //             mutualFriend = true;
+    //             break;
+    //         }
+    //     }
+    //     if (!mutualFriend) {
+    //         parent.blacklist.push(sitter._id);
+    //         db.addSitterToBlacklist(parent);
+    //         finish = false;
+    //         callback(0);
+    //         return;
+    //     }
+    // }
+    // let testScore = 0;
+    // let testScoreDifference = Math.abs(parent.personalityTest.totalScore - sitter.personalityTest.totalScore);
+    // if (testScoreDifference <= 10) {
+    //     testScore = 100;
+    // }
+    // else if (testScoreDifference > 10 && testScoreDifference <= 20) {
+    //     testScore = 80;
+    // }
+    // else if (testScoreDifference > 20 && testScoreDifference <= 30) {
+    //     testScore = 60;
+    // }
+    // else if (testScoreDifference > 30) {
+    //     testScore = 40;
+    // }
+    // matchData.push({name: 'Personality', value: testScore});
 
     if (sameHobbies > 0) {
         if (sameExpertise > 0) { // hobbies and expertise score set
@@ -295,27 +295,27 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
         generalScore += scoreSet.withoutHobbies.experience * experienceScore;
         generalScore += scoreSet.withoutExpertise.highSchool * highSchoolScore;
         generalScore += scoreSet.withoutHobbies.proximity * proximityScore;
-        generalScore += scoreSet.withoutHobbies.personalityTest * testScore;
+        //generalScore += scoreSet.withoutHobbies.personalityTest * testScore;
     }
     else { // default score set
         generalScore += scoreSet.default.college * collegeScore;
         generalScore += scoreSet.default.experience * experienceScore;
         generalScore += scoreSet.default.highSchool * highSchoolScore;
         generalScore += scoreSet.default.proximity * proximityScore;
-        generalScore += scoreSet.default.personalityTest * testScore;
+        //generalScore += scoreSet.default.personalityTest * testScore;
     }
     ;
     if (generalScore > 100) // more than 100% match with the bonuses
         generalScore = 100;
     else {
-        if (sitter.mutualFriends.length > 0 && parent.mutualFriends.length > 0) {
-            mutualFriends = _.unionBy(parent.mutualFriends, sitter.mutualFriends, 'id');
-            let mutualFriendsScore = (mutualFriends.length * 2) > 10 ? 10 : mutualFriends.length * 2;
-            matchData.push({name: 'Mutual Friends', value: mutualFriendsScore * 10});
-            if ((generalScore + mutualFriendsScore ) > 100)
-                mutualFriendsScore = 100 - generalScore;
-            generalScore += mutualFriendsScore;
-        }
+        // if (sitter.mutualFriends.length > 0 && parent.mutualFriends.length > 0) {
+        //     mutualFriends = _.unionBy(parent.mutualFriends, sitter.mutualFriends, 'id');
+        //     let mutualFriendsScore = (mutualFriends.length * 2) > 10 ? 10 : mutualFriends.length * 2;
+        //     matchData.push({name: 'Mutual Friends', value: mutualFriendsScore * 10});
+        //     if ((generalScore + mutualFriendsScore ) > 100)
+        //         mutualFriendsScore = 100 - generalScore;
+        //     generalScore += mutualFriendsScore;
+        // }
     }
     finish = false;  // exit the sync loop
     let match = {};

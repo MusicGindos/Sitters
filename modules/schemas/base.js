@@ -88,6 +88,7 @@ let user = new Schema({
     notifications: [notification],
     invites: [invite],
     mutualFriends: [friend],
+    friends: [friend],
     personality: [String],
     isParent: Boolean
 });

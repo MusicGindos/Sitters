@@ -97,10 +97,10 @@ exports.deleteParent = (req, res) => {
 
 
 function isMatch(parent, sitter) {
-    let median = parent.matchBI.median? parent.matchBI.median: 40;
+   // let median = parent.matchBI.median? parent.matchBI.median: 40;
     sitter.match = clone(matcher.calculateMatchingScore(parent, sitter));
     sitter.matchScore = sitter.match.matchScore;
-    if(sitter.match.matchScore >= median) return sitter.match;
+    if(sitter.match.matchScore > 50) return sitter.match;
 }
 
 exports.getMatches = (req, res) => {
@@ -180,16 +180,16 @@ exports.updateMutualFriends = (req, res) => {
                 }
                 else {
                     let users = _.union(parents,sitters);
-                    for(let index = 0; index < parent.mutualFriends.length; index++){
+                    for(let index = 0; index < parent.friends.length; index++){
                         for(let j = 0; j < users.length; j++){
-                            if(users[j]._id === parent.mutualFriends[index].id){
-                                parent.mutualFriends[index].picture = users[j].profilePicture;
+                            if(users[j]._id === parent.friends[index].id){
+                                parent.friends[index].picture = users[j].profilePicture;
                                 break;
                             }
                         }
                     }
                     setMutualFriends(parent);
-                    status(res,"mutual friends updated");
+                    status(res,"friends updated");
                 }
             });
         }
