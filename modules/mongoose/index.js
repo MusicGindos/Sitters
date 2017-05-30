@@ -11,7 +11,8 @@ let mongoose = require('mongoose'),
         mongoUrl: 'mongodb://sitter:123456@ds157499.mlab.com:57499/sitter'
     },
     finish = true,
-    _ = require("lodash");
+    _ = require("lodash"),
+    webpush         = require('web-push');
 
 
 let error = (res, error) => {
@@ -97,10 +98,12 @@ exports.deleteParent = (req, res) => {
 
 
 function isMatch(parent, sitter) {
-   // let median = parent.matchBI.median? parent.matchBI.median: 40;
-    sitter.match = clone(matcher.calculateMatchingScore(parent, sitter));
-    sitter.matchScore = sitter.match.matchScore;
-    if(sitter.match.matchScore > 50) return sitter.match;
+    // let median = parent.matchBI.median? parent.matchBI.median: 40;
+    if(sitter.settings.allowShowOnSearch){
+        sitter.match = clone(matcher.calculateMatchingScore(parent, sitter));
+        sitter.matchScore = sitter.match.matchScore;
+        if(sitter.match.matchScore > 50) return sitter.match;
+    }
 }
 
 exports.getMatches = (req, res) => {
@@ -305,11 +308,18 @@ exports.sendInvite = (req, res, next) => {
                     error(res,err);
                 }
                 else {
+                    notifications(parent.pushNotifications);
                     Sitter.findOne().where('_id', sitterID).exec(function (err, sitter) {
                         if (err) {
                             error(res,err);
                         }
                         else {
+
+                            // if (parentID in sitter.multipleInvites)
+                            //     sitter.multipleInvites[parentID] += 1;
+                            // else
+                            //     sitter.multipleInvites[parentID] = 1;
+
                             sitter.invites = _.union(sitter.invites, req.body);
                             sitter._doc.lastInvite = moment().format("DD/MM/YYYY");
                             sitter.update({$set: sitter}).exec(function (err) {
@@ -327,4 +337,19 @@ exports.sendInvite = (req, res, next) => {
         }
     });
 
+};
+
+function notifications(pushNotifications) {
+    //const vapidKeys = webpush.generateVAPIDKeys();
+    webpush.setGCMAPIKey('AIzaSyC_cF6XxPyOpQXdM01txENJsPfLQ61lDzE'); // const
+    webpush.setVapidDetails(
+        'mailto:arel-g@hotmail.com', // const
+        "BA9TXkOAudBsHZCtma-VftBiXmAc-Ho4M7SwAXRpZDR-DsE6pdMP_HVTTQaa3vkQuHLcB6hB87yiunJFUEa4Pas", // const
+        "9wDAtLKaQZh08dyQzkLkXHnLSGbMeeLA0TErWrE_Gjw"
+        // vapidKeys.publicKey,
+        // vapidKeys.privateKey
+    );
+   // const pushSubscription = pushNotifications;
+
+    webpush.sendNotification(pushNotifications, 'Your Push Payload Text');
 };
