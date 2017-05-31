@@ -308,7 +308,7 @@ exports.sendInvite = (req, res, next) => {
                     error(res,err);
                 }
                 else {
-                    notifications(parent.pushNotifications);
+                    notifications(parent.pushNotifications, req.body);
                     Sitter.findOne().where('_id', sitterID).exec(function (err, sitter) {
                         if (err) {
                             error(res,err);
@@ -344,7 +344,7 @@ exports.sendInvite = (req, res, next) => {
 
 };
 
-function notifications(pushNotifications) {
+function notifications(pushNotifications, data) {
     //const vapidKeys = webpush.generateVAPIDKeys();
     webpush.setGCMAPIKey('AIzaSyC_cF6XxPyOpQXdM01txENJsPfLQ61lDzE'); // const
     webpush.setVapidDetails(
@@ -356,5 +356,5 @@ function notifications(pushNotifications) {
     );
     // const pushSubscription = pushNotifications;
 
-    webpush.sendNotification(pushNotifications, 'Your Push Payload Text');
+    webpush.sendNotification(pushNotifications, JSON.stringify(data));
 }
