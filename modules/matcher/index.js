@@ -18,13 +18,13 @@ let express = require('express'),
     highSchoolScore = 0,
     personalityScore = 0,
     matchData = [],
-    db = require('../mongoose');
+    db = require('../mongoose'),
+    mutualFriends = [];
 
 let init = function () {
     finish = true,
         maindata = origin = destination = distance = proximityScore = experienceScore = sameExpertise = null,
-        sameHobbies = generalScore = collegeScore = highSchoolScore = personalityScore = 0,
-        matchData = []
+        sameHobbies = generalScore = collegeScore = highSchoolScore = personalityScore = 0, matchData = [], mutualFriends = [];
 };
 let scoreSet = {
     default: {
@@ -116,7 +116,6 @@ let computeMatchScore = function (parent, sitter, filter, distance) {  // make c
 
 
 let computeScore = function (parent, sitter, filter, distance, callback) { // compute match score between sitter-parent-child
-    let mutualFriends = [];
     init();
     if (parent.children.age < sitter.minAge || parent.children.age > sitter.maxAge || sitter.hourFee > parent.maxPrice) {
         parent.blacklist.push(sitter._id);
@@ -210,8 +209,8 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
     if(sitter.reviews.length > 0 ){ // reviews
         personalityScore += ( 10 * sitter.reviews.length);
     }
-    if (sitter.mutualFriends.length > 0 && parent.mutualFriends.length > 0) {
-        mutualFriends = _.unionBy(parent.mutualFriends, sitter.mutualFriends, 'id');
+    if (sitter.friends.length > 0 && parent.friends.length > 0) {
+        mutualFriends = _.unionBy(parent.friends, sitter.friends, 'id');
         //let mutualFriendsScore = (mutualFriends.length * 2) > 10 ? 10 : mutualFriends.length * 2;
         if (mutualFriends.length !== 0) {
             if (mutualFriends.length > 2) {
