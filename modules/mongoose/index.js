@@ -314,11 +314,16 @@ exports.sendInvite = (req, res, next) => {
                             error(res,err);
                         }
                         else {
-
-                            // if (parentID in sitter.multipleInvites)
-                            //     sitter.multipleInvites[parentID] += 1;
-                            // else
-                            //     sitter.multipleInvites[parentID] = 1;
+                            var invite = _.find(sitter.multipleInvites, function(obj) {
+                                return obj._id === parentID;
+                            });
+                            if(invite){
+                                invite.count += req.body.length;
+                            }
+                            else{
+                                sitter.multipleInvites.push({_id: parentID, count: req.body.length});
+                            }
+                            _.orderBy(sitter.multipleInvites, ['count'], ['desc']);
 
                             sitter.invites = _.union(sitter.invites, req.body);
                             sitter._doc.lastInvite = moment().format("DD/MM/YYYY");
@@ -349,7 +354,7 @@ function notifications(pushNotifications) {
         // vapidKeys.publicKey,
         // vapidKeys.privateKey
     );
-   // const pushSubscription = pushNotifications;
+    // const pushSubscription = pushNotifications;
 
     webpush.sendNotification(pushNotifications, 'Your Push Payload Text');
-};
+}
