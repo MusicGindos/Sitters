@@ -45,7 +45,7 @@ let sitter = base.user.extend({
     availableNow: {type: Boolean, required: true},
     experience: {type: Number, required: true, default: 0},
     hobbies: [String],
-    mobility: {type: Boolean, required: true, default: false},
+    mobility: [String],
     specialNeeds: [String],
     expertise: [String],
     reviews: [Review],
