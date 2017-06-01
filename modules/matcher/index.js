@@ -210,7 +210,7 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
         personalityScore += ( 10 * sitter.reviews.length);
     }
     if (sitter.friends.length > 0 && parent.friends.length > 0) {
-        mutualFriends = _.unionBy(parent.friends, sitter.friends, 'id');
+        mutualFriends = _.intersectionBy(parent.friends,sitter.friends, "id")
         //let mutualFriendsScore = (mutualFriends.length * 2) > 10 ? 10 : mutualFriends.length * 2;
         if (mutualFriends.length !== 0) {
             if (mutualFriends.length > 2) {
