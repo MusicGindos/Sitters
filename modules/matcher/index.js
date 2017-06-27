@@ -232,8 +232,23 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
             personalityScore += wordsCount === 2? 25: 10;
         }
     }
-    if(personalityScore > 100)
+    if(personalityScore > 500)
         personalityScore = 100;
+    else {
+        if(sitter.reviews.length >0){
+            let reviewScore = 0;
+            sitter.reviews.forEach(function(review){
+                review = review.toObject();
+                let values = Object.keys(review.rates).map(function(key) {return review.rates[key];});
+                let sumReview = values.reduce(function(acc, val) {
+                    return acc + val;
+                }, 0);
+               reviewScore = sumReview> 12? 10: -10;
+            });
+            personalityScore += reviewScore;
+        }
+    }
+
     matchData.push({name: 'Personality', value: Math.round(personalityScore)});
     // if(samePersonalityWords.length === 0 && mutualFriends.length === 0){TODO: enable after will 30 sitters in db
     //     parent.blacklist.push(sitter._id);
