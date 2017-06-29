@@ -90,7 +90,8 @@ let user = new Schema({
     mutualFriends: [friend],
     friends: [friend],
     personality: [String],
-    isParent: Boolean
+    isParent: Boolean,
+    senderId: String
 });
 User = mongoose.model('User', user);
 

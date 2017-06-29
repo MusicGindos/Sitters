@@ -3,6 +3,7 @@ let mongoose = require('mongoose'),
     Parent = require('../schemas/parent').Parent,
     Sitter = require('../schemas/sitter').sitterModel,
     base = require('../schemas/base'),
+    gcm = require('node-gcm'),
     db,
     moment = require('moment'),
     clone = require('clone'),
@@ -76,6 +77,8 @@ exports.updateParent = (req, res) => {
                 error(res, err);
             }
             else {
+                console.log(req.body.invites[0]);
+                mobileNotifications(req.body.senderId, req.body.invites[0]);
                 status(res, req.body.email + " updated");
             }
         });
@@ -127,6 +130,7 @@ exports.getParent = (req, res) => {
             error(res, err);
         }
         else {
+            // mobileNotifications(req.body.pushNotifications, req.body);
             res.status(200).json(doc);
         }
     });
@@ -309,6 +313,7 @@ exports.sendInvite = (req, res, next) => {
                 }
                 else {
                     notifications(parent.pushNotifications, req.body);
+                    mobileNotifications(parent.senderId, req.body);
                     Sitter.findOne().where('_id', sitterID).exec(function (err, sitter) {
                         if (err) {
                             error(res,err);
@@ -357,4 +362,29 @@ function notifications(pushNotifications, data) {
     // const pushSubscription = pushNotifications;
 
     webpush.sendNotification(pushNotifications, JSON.stringify(data));
+}
+
+function mobileNotifications(senderId, data) {
+    // Set up the sender with your GCM/FCM API key (declare this once for multiple messages)
+    var sender = new gcm.Sender('AIzaSyAy5Z6ByEm4CX3YwohagPTOi0qlMC3XPaU');
+    console.log('mobileNotifications');
+
+    // Prepare a message to be sent
+    var message = new gcm.Message({
+        data: { data: data },
+        notification: {
+            title: "Sitters",
+            icon: "ic_launcher",
+            body: data.message ? data.message : "New Invite"
+        }
+    });
+
+    // Specify which registration IDs to deliver the message to
+    var regTokens = [senderId];
+
+    // Actually send the message
+    sender.send(message, { registrationTokens: regTokens }, function (err, response) {
+        if (err) console.error(err);
+        else console.log(response);
+    });
 }
