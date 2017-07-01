@@ -78,7 +78,7 @@ exports.updateParent = (req, res) => {
             }
             else {
                 console.log(req.body.invites[0]);
-                mobileNotifications(req.body.senderId, req.body.invites[0]);
+               // mobileNotifications(req.body.senderId, req.body.invites[0]);
                 status(res, req.body.email + " updated");
             }
         });
@@ -361,21 +361,28 @@ exports.updateInvite = (req, res) => {
                 error(res, err);
             }
             else {
-                Parent.findOne().where('_id', req.body.parentID).exec(function (err, parent) {
-                    if (parent === null) {
-                        //TODO bom
-                    }
-                    else {
-                        notifications(parent.pushNotifications,req.body)
-                    }
-                    status(res, req.body.email + " updated");
-                });
+                // TODO : new logic
 
             }
         });
     });
-};
 
+    Parent.findOne().where('_id', req.body.parentID).exec(function (err, parent) {
+        parent.invites.forEach(invite => {if(invite._id === req.body._id) {
+            invite.status = req.body.status;
+        }});
+        parent.update({$set: parent}).exec(function (err) {
+            if (err) {
+                error(res, err);
+            }
+            else {
+                if(req.body.status !== 'waiting')
+                    notifications(parent.pushNotifications,req.body);
+                status(res," updated");
+            }
+        });
+    });
+};
 
 function notifications(pushNotifications, data) {
     if(pushNotifications){
