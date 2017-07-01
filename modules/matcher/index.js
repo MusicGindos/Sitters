@@ -219,7 +219,6 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
             else {
                 personalityScore += mutualFriends.length === 2 ?50 :30;
             }
-
         }
     }
     let samePersonalityWords = _.intersection(parent.personality, sitter.personality);
@@ -232,7 +231,7 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
             personalityScore += wordsCount === 2? 25: 10;
         }
     }
-    if(personalityScore > 500)
+    if(personalityScore > 100)
         personalityScore = 100;
     else {
         if(sitter.reviews.length >0){
@@ -240,9 +239,7 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
             sitter.reviews.forEach(function(review){
                 review = review.toObject();
                 let values = Object.keys(review.rates).map(function(key) {return review.rates[key];});
-                let sumReview = values.reduce(function(acc, val) {
-                    return acc + val;
-                }, 0);
+                let sumReview = values.reduce(function(acc, val) {return acc + val;}, 0);
                reviewScore = sumReview> 12? 10: -10;
             });
             personalityScore += reviewScore;

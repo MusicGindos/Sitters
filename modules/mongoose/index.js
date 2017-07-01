@@ -312,8 +312,6 @@ exports.sendInvite = (req, res, next) => {
                     error(res,err);
                 }
                 else {
-                    notifications(parent.pushNotifications, req.body);
-                    mobileNotifications(parent.senderId, req.body);
                     Sitter.findOne().where('_id', sitterID).exec(function (err, sitter) {
                         if (err) {
                             error(res,err);
@@ -337,6 +335,8 @@ exports.sendInvite = (req, res, next) => {
                                     error(res, err);
                                 }
                                 else {
+                                    notifications(sitter.pushNotifications, req.body);
+                                    //mobileNotifications(parent.senderId, req.body);
                                     status(res,"invite created in sitter and parent DB");
                                 }
                             });

@@ -35,6 +35,13 @@ let address = new Schema({
     longitude: {type: Number, default: 0}
 }, {_id: false});
 
+let PushNotifications = new Schema({
+    endpoint: String,
+    keys: {
+        auth: String,
+        p256dh: String
+    }
+}, {_id: false});
 
 let sitter = base.user.extend({
     education: [String],
@@ -54,7 +61,8 @@ let sitter = base.user.extend({
     personalityTest: base.personalityTest,
     motto: String,
     settings: Settings,
-    multipleInvites: Object
+    multipleInvites: Object,
+    pushNotifications: PushNotifications
 }, {collection: "sitters"});
 
 Sitter = mongoose.model('Sitter', sitter);
