@@ -307,6 +307,8 @@ exports.sendInvite = (req, res, next) => {
         }
         else {
             parent.invites = _.union(parent.invites, req.body);
+
+            // Notify sitter
             parent.update({$set: parent}).exec(function (err) {
                 if (err) {
                     error(res,err);
@@ -349,19 +351,48 @@ exports.sendInvite = (req, res, next) => {
 
 };
 
-function notifications(pushNotifications, data) {
-    //const vapidKeys = webpush.generateVAPIDKeys();
-    webpush.setGCMAPIKey('AIzaSyC_cF6XxPyOpQXdM01txENJsPfLQ61lDzE'); // const
-    webpush.setVapidDetails(
-        'mailto:arel-g@hotmail.com', // const
-        "BA9TXkOAudBsHZCtma-VftBiXmAc-Ho4M7SwAXRpZDR-DsE6pdMP_HVTTQaa3vkQuHLcB6hB87yiunJFUEa4Pas", // const
-        "9wDAtLKaQZh08dyQzkLkXHnLSGbMeeLA0TErWrE_Gjw"
-        // vapidKeys.publicKey,
-        // vapidKeys.privateKey
-    );
-    // const pushSubscription = pushNotifications;
+exports.updateInvite = (req, res) => {
+    Sitter.findOne().where('_id', req.body.sitterID).exec(function (err, sitter) {
+        sitter.invites.forEach(invite => {if(invite._id === req.body._id) {
+            invite.status = req.body.status;
+        }});
+        sitter.update({$set: sitter}).exec(function (err) {
+            if (err) {
+                error(res, err);
+            }
+            else {
+                Parent.findOne().where('_id', req.body.parentID).exec(function (err, parent) {
+                    if (parent === null) {
+                        //TODO bom
+                    }
+                    else {
+                        notifications(parent.pushNotifications,req.body)
+                    }
+                    status(res, req.body.email + " updated");
+                });
 
-    webpush.sendNotification(pushNotifications, JSON.stringify(data));
+            }
+        });
+    });
+};
+
+
+function notifications(pushNotifications, data) {
+    if(pushNotifications){
+        //const vapidKeys = webpush.generateVAPIDKeys();
+        webpush.setGCMAPIKey('AIzaSyC_cF6XxPyOpQXdM01txENJsPfLQ61lDzE'); // const
+        webpush.setVapidDetails(
+            'mailto:arel-g@hotmail.com', // const
+            "BA9TXkOAudBsHZCtma-VftBiXmAc-Ho4M7SwAXRpZDR-DsE6pdMP_HVTTQaa3vkQuHLcB6hB87yiunJFUEa4Pas", // const
+            "9wDAtLKaQZh08dyQzkLkXHnLSGbMeeLA0TErWrE_Gjw"
+            // vapidKeys.publicKey,
+            // vapidKeys.privateKey
+        );
+        // const pushSubscription = pushNotifications;
+
+        webpush.sendNotification(pushNotifications, JSON.stringify(data));
+    }
+
 }
 
 function mobileNotifications(senderId, data) {
