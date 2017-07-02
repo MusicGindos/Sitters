@@ -337,7 +337,7 @@ exports.sendInvite = (req, res, next) => {
                                     error(res, err);
                                 }
                                 else {
-                                    notifications(sitter.pushNotifications, req.body);
+                                    notifications(sitter.pushNotifications, req.body[0]);
                                     //mobileNotifications(parent.senderId, req.body);
                                     status(res,"invite created in sitter and parent DB");
                                 }
