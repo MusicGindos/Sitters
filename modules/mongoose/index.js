@@ -355,6 +355,7 @@ exports.updateInvite = (req, res) => {
     Sitter.findOne().where('_id', req.body.sitterID).exec(function (err, sitter) {
         sitter.invites.forEach(invite => {if(invite._id === req.body._id) {
             invite.status = req.body.status;
+            invite.wasRead = req.body.wasRead;
         }});
         sitter.update({$set: sitter}).exec(function (err) {
             if (err) {
@@ -377,7 +378,7 @@ exports.updateInvite = (req, res) => {
             }
             else {
                 if(req.body.status !== 'waiting')
-                    notifications(parent.pushNotifications,req.body);
+                    notifications(parent.pushNotifications.toObject(),req.body);
                 status(res," updated");
             }
         });
@@ -392,14 +393,9 @@ function notifications(pushNotifications, data) {
             'mailto:arel-g@hotmail.com', // const
             "BA9TXkOAudBsHZCtma-VftBiXmAc-Ho4M7SwAXRpZDR-DsE6pdMP_HVTTQaa3vkQuHLcB6hB87yiunJFUEa4Pas", // const
             "9wDAtLKaQZh08dyQzkLkXHnLSGbMeeLA0TErWrE_Gjw"
-            // vapidKeys.publicKey,
-            // vapidKeys.privateKey
         );
-        // const pushSubscription = pushNotifications;
-
         webpush.sendNotification(pushNotifications, JSON.stringify(data));
     }
-
 }
 
 function mobileNotifications(senderId, data) {
