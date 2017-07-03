@@ -71,7 +71,6 @@ let friend = new Schema({
     picture: {type: String, default: ''}
 }, {_id: false});
 
-
 let user = new Schema({
     _id: {type: String},
     userType: {type: String, default: "I'm a parent"},
@@ -91,7 +90,10 @@ let user = new Schema({
     friends: [friend],
     personality: [String],
     isParent: Boolean,
-    senderId: String
+    senderGCM: {
+        senderId: String,
+        valid: Boolean
+    }
 });
 User = mongoose.model('User', user);
 

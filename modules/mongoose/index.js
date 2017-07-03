@@ -77,8 +77,6 @@ exports.updateParent = (req, res) => {
                 error(res, err);
             }
             else {
-                console.log(req.body.invites[0]);
-                mobileNotifications(req.body.senderId, req.body.invites[0]);
                 status(res, req.body.email + " updated");
             }
         });
@@ -130,7 +128,6 @@ exports.getParent = (req, res) => {
             error(res, err);
         }
         else {
-            // mobileNotifications(req.body.pushNotifications, req.body);
             res.status(200).json(doc);
         }
     });
@@ -157,6 +154,31 @@ exports.addSitterToBlacklist = (parent) => {
                 console.log('blacklist updated');
             }
         });
+    });
+};
+
+exports.getSitterNow = (req, res, next) => {
+    Parent.findOne().where('_id', req.body._id).exec(function (err, doc) {
+        if (err) {
+            error(res, err);
+        }
+        else {
+            Sitter.find(function (err, sitters) {
+                if (err) {
+                    error(res, err);
+                }
+                else {
+                    const parent = doc;
+                    const allSitters = _.keyBy(_.map(sitters, '_doc'), function(sitter) {return sitter._id});
+                    const whitelist = _.filter(allSitters, sitter => !(_.includes(parent.blacklist, sitter._id)));
+                    const descendingScoreList = whitelist.filter(sitter => isMatch(parent, sitter));
+                    const filtered = descendingScoreList.filter(sitter => (sitter.address.city == parent.address.city));
+                    let result = _.orderBy(filtered, ['matchScore'], ['desc']);
+                    console.log(result);
+                    status(res, result);
+                }
+            });
+        }
     });
 };
 
@@ -313,7 +335,9 @@ exports.sendInvite = (req, res, next) => {
                 }
                 else {
                     notifications(parent.pushNotifications, req.body);
-                    mobileNotifications(parent.senderId, req.body);
+                    if(parent.senderGCM.valid) {
+                        mobileNotifications(parent.senderGCM.senderId, req.body);
+                    }
                     Sitter.findOne().where('_id', sitterID).exec(function (err, sitter) {
                         if (err) {
                             error(res,err);
