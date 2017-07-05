@@ -65,10 +65,6 @@ exports.notifications = (req, res, next) => {
     webpush.sendNotification(pushSubscription, 'Your Push Payload Text');
 };
 
-exports.getSitterNow = (req, res, next) => {
-    mongoose.getSitterNow(req,res,next);
-};
-
 exports.getUser = (req, res, next) => {
     mongoose.getUser(req,res,next);
 };

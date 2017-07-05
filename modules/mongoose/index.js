@@ -157,31 +157,6 @@ exports.addSitterToBlacklist = (parent) => {
     });
 };
 
-exports.getSitterNow = (req, res, next) => {
-    Parent.findOne().where('_id', req.body._id).exec(function (err, doc) {
-        if (err) {
-            error(res, err);
-        }
-        else {
-            Sitter.find(function (err, sitters) {
-                if (err) {
-                    error(res, err);
-                }
-                else {
-                    const parent = doc;
-                    const allSitters = _.keyBy(_.map(sitters, '_doc'), function(sitter) {return sitter._id});
-                    const whitelist = _.filter(allSitters, sitter => !(_.includes(parent.blacklist, sitter._id)));
-                    const descendingScoreList = whitelist.filter(sitter => isMatch(parent, sitter));
-                    const filtered = descendingScoreList.filter(sitter => (sitter.address.city == parent.address.city));
-                    let result = _.orderBy(filtered, ['matchScore'], ['desc']);
-                    console.log(result);
-                    status(res, result);
-                }
-            });
-        }
-    });
-};
-
 function setMutualFriends(user) {
     if(user.isParent){
         Parent.findOne().where('_id', user._id).exec(function (err, doc) {
@@ -364,7 +339,9 @@ exports.sendInvite = (req, res, next) => {
                                 }
                                 else {
                                     notifications(sitter.pushNotifications, req.body[0]);
-                                    //mobileNotifications(parent.senderId, req.body);
+                                    if(parent.senderGCM.valid) {
+                                        mobileNotifications(sitter.senderGCM.senderId, req.body[0]);
+                                    }
                                     status(res,"invite created in sitter and parent DB");
                                 }
                             });
@@ -403,8 +380,12 @@ exports.updateInvite = (req, res) => {
                 error(res, err);
             }
             else {
-                if(req.body.status !== 'waiting')
-                    notifications(parent.pushNotifications.toObject(),req.body);
+                if(req.body.status !== 'waiting') {
+                    notifications(parent.pushNotifications.toObject(), req.body);
+                    if (parent.senderGCM.valid) {
+                        mobileNotifications(parent.senderGCM.senderId, req.body);
+                    }
+                }
                 status(res," updated");
             }
         });
