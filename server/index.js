@@ -97,6 +97,7 @@ exports.createSitter = (req, res, next) => {
 
 exports.updateSitter = (req, res, next) => {
     mongoose.updateSitter(req, res, next);
+
     //suggest.updateNotification();
 };
 
@@ -127,4 +128,8 @@ exports.writeReview = (req,res,next) =>{
     //get sitter
     //set sitter
 //TODO: insert into sitter db only
+};
+
+exports.updateInvite = (req,res,next) =>{
+    mongoose.updateInvite(req,res,next);
 };
