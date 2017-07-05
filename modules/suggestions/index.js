@@ -7,7 +7,8 @@ let matcher         = require('../matcher'),
     clone           = require('clone'),
     Parent = require('../schemas/parent').Parent,
     Sitter = require('../schemas/sitter').sitterModel;
-var uuid = require("uuid");
+var uuid = require("uuid"),
+    webpush         = require('web-push');
 
 let MESSAGE_NEW = "New Sitter Available";
 let MESSAGE_UPDATE = "One Of your Sitters Updated His Data";
@@ -40,7 +41,8 @@ exports.newNotification = (sitter) => {
                                 console.log(err);
                             }
                             else {
-                               console.log("notification added");
+                                notifications(parent.pushNotifications, notification);
+                                console.log("notification added");
                             }
                         });
                     });
@@ -83,3 +85,16 @@ exports.deleteNotification = (sitter) => {
         db.updateParent(parent);
     });
 };
+
+function notifications(pushNotifications, data) {
+    if(pushNotifications){
+        //const vapidKeys = webpush.generateVAPIDKeys();
+        webpush.setGCMAPIKey('AIzaSyC_cF6XxPyOpQXdM01txENJsPfLQ61lDzE'); // const
+        webpush.setVapidDetails(
+            'mailto:arel-g@hotmail.com', // const
+            "BA9TXkOAudBsHZCtma-VftBiXmAc-Ho4M7SwAXRpZDR-DsE6pdMP_HVTTQaa3vkQuHLcB6hB87yiunJFUEa4Pas", // const
+            "9wDAtLKaQZh08dyQzkLkXHnLSGbMeeLA0TErWrE_Gjw"
+        );
+        webpush.sendNotification(pushNotifications, JSON.stringify(data));
+    }
+}
