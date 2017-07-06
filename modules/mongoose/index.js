@@ -311,10 +311,10 @@ exports.sendInvite = (req, res, next) => {
                     error(res,err);
                 }
                 else {
-                    notifications(parent.pushNotifications, req.body);
-                    if(parent.senderGCM.valid) {
-                        mobileNotifications(parent.senderGCM.senderId, req.body);
-                    }
+                    // notifications(sitter.pushNotifications, req.body);
+                    // if(parent.senderGCM.valid) {
+                    //     mobileNotifications(parent.senderGCM.senderId, req.body);
+                    // }
                     Sitter.findOne().where('_id', sitterID).exec(function (err, sitter) {
                         if (err) {
                             error(res,err);
