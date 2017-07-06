@@ -92,7 +92,7 @@ let user = new Schema({
     isParent: Boolean,
     senderGCM: {
         senderId: String,
-        valid: Boolean
+        valid: {type: Boolean, default: false}
     }
 });
 User = mongoose.model('User', user);

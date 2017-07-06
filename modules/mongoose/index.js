@@ -372,6 +372,10 @@ exports.updateInvite = (req, res) => {
     });
 
     Parent.findOne().where('_id', req.body.parentID).exec(function (err, parent) {
+        if(err){
+            console.log(err);
+        }
+        console.log(parent);
         parent.invites.forEach(invite => {if(invite._id === req.body._id) {
             invite.status = req.body.status;
         }});
@@ -411,14 +415,13 @@ function mobileNotifications(senderId, data) {
     console.log('mobileNotifications');
 
     // Prepare a message to be sent
-    var message = new gcm.Message({
-        data: { data: data },
-        notification: {
-            title: "Sitters",
-            icon: "ic_launcher",
-            body: data.message ? data.message : "New Invite"
-        }
-    });
+    var message = new gcm.Message();
+    var messageStr = data.message ? data.message : "New Invite";
+
+    message.addData('data',data);
+    message.addNotification('message', data.message ? data.message : "New Invite");
+
+    console.log(message);
 
     // Specify which registration IDs to deliver the message to
     var regTokens = [senderId];
@@ -426,6 +429,6 @@ function mobileNotifications(senderId, data) {
     // Actually send the message
     sender.send(message, { registrationTokens: regTokens }, function (err, response) {
         if (err) console.error(err);
-        else console.log(response);
+        else console.log('success');
     });
 }
