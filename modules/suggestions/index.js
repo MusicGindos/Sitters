@@ -35,7 +35,14 @@ exports.newNotification = (sitter) => {
                         date: new Date().getTime(),
                         sitterName: sitter.name,
                         sitterID: sitter._id,
-                        sitterPicture: sitter.profilePicture
+                        sitterPicture: sitter.profilePicture,
+                        sitter: {
+                            sitterName: sitter.name,
+                            profilePicture: sitter.profilePicture,
+                            coverPhoto: sitter.coverPhoto,
+                            personality: sitter.personality
+                        },
+                        match: match
                     };
                     parent.notifications.push(notification);
                     parent.update({$set: parent}).exec(function (err) {
@@ -44,9 +51,9 @@ exports.newNotification = (sitter) => {
                         }
                         else {
                             notifications(parent.pushNotifications.toObject(), notification);
-                            if(parent.senderGCM.valid) {
-                                mobileNotifications(sitter.senderGCM.senderId, notification);
-                            }
+                            // if(parent.senderGCM.valid) {
+                            //     mobileNotifications(sitter.senderGCM.senderId, notification);
+                            // }
                             console.log("notification added");
                         }
                     });
