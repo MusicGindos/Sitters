@@ -246,8 +246,8 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
         }
     }
 
-    matchData.push({name: 'Personality', value: Math.round(personalityScore)});
-    // if(samePersonalityWords.length === 0 && mutualFriends.length === 0){TODO: enable after will 30 sitters in db
+    matchData.push({name: 'Reliability', value: Math.round(personalityScore)});
+    // if(samePersonalityWords.length === 0 && mutualFriends.length === 0){
     //     parent.blacklist.push(sitter._id);
     //     db.addSitterToBlacklist(parent);
     //     finish = false;
