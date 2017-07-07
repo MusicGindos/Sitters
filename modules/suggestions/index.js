@@ -1,7 +1,7 @@
 'use strict';
 
 let matcher         = require('../matcher'),
-    forEach         = require("lodash").forEach,
+    _         = require("lodash"),
     db              = require('../mongoose'),
     Notification    = require('../schemas/parent').Notification,
     clone           = require('clone'),
@@ -22,8 +22,11 @@ exports.newNotification = (sitter) => {
             console.log(err);
         }
         else {
-            forEach(parents, (parent) => {
-                const match = clone(matcher.calculateMatchingScore(parent, s));
+            _.forEach(parents, (parent) => {
+                //const match = clone(matcher.calculateMatchingScore(parent, s));
+                let match = matcher.calculateMatchingScore(parent, s);
+                match = _.cloneDeep(match);
+
                 if(match.matchScore > 0) {
                     const notification = {
                         _id: uuid.v1(),
@@ -35,17 +38,29 @@ exports.newNotification = (sitter) => {
                         sitterPicture: sitter.profilePicture
                     };
                     parent.notifications.push(notification);
-                    Parent.findOne().where('_id', parent._id).exec(function (err, doc) {
-                        doc.update({$set: parent}).exec(function (err) {
-                            if (err) {
-                                console.log(err);
+                    parent.update({$set: parent}).exec(function (err) {
+                        if (err) {
+                            console.log(err);
+                        }
+                        else {
+                            notifications(parent.pushNotifications.toObject(), notification);
+                            if(parent.senderGCM.valid) {
+                                mobileNotifications(sitter.senderGCM.senderId, notification);
                             }
-                            else {
-                                notifications(parent.pushNotifications, notification);
-                                console.log("notification added");
-                            }
-                        });
+                            console.log("notification added");
+                        }
                     });
+                    // Parent.findOne().where('_id', parent._id).exec(function (err, doc) {
+                    //     doc.update({$set: parent}).exec(function (err) {
+                    //         if (err) {
+                    //             console.log(err);
+                    //         }
+                    //         else {
+                    //             notifications(parent.pushNotifications, notification);
+                    //             console.log("notification added");
+                    //         }
+                    //     });
+                    // });
 
                 }
             });
@@ -97,4 +112,29 @@ function notifications(pushNotifications, data) {
         );
         webpush.sendNotification(pushNotifications, JSON.stringify(data));
     }
+}
+
+function mobileNotifications(senderId, data) {
+    // Set up the sender with your GCM/FCM API key (declare this once for multiple messages)
+    var sender = new gcm.Sender('AIzaSyAy5Z6ByEm4CX3YwohagPTOi0qlMC3XPaU');
+    console.log('mobileNotifications');
+
+    // Prepare a message to be sent
+    var message = new gcm.Message({
+        data: { data: data },
+        notification: {
+            title: "Sitters",
+            icon: "ic_launcher",
+            body: data.message ? data.message : "New Invite"
+        }
+    });
+
+    // Specify which registration IDs to deliver the message to
+    var regTokens = [senderId];
+
+    // Actually send the message
+    sender.send(message, { registrationTokens: regTokens }, function (err, response) {
+        if (err) console.error(err);
+        else console.log(response);
+    });
 }
