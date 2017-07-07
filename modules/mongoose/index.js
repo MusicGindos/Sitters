@@ -13,7 +13,7 @@ let mongoose = require('mongoose'),
     },
     finish = true,
     _ = require("lodash"),
-    webpush         = require('web-push');
+    webpush = require('web-push');
 
 
 let error = (res, error) => {
@@ -97,13 +97,12 @@ exports.deleteParent = (req, res) => {
 };
 
 
-
 function isMatch(parent, sitter) {
     // let median = parent.matchBI.median? parent.matchBI.median: 40;
-    if(sitter.settings.allowShowOnSearch){
+    if (sitter.settings.allowShowOnSearch) {
         sitter.match = clone(matcher.calculateMatchingScore(parent, sitter));
         sitter.matchScore = sitter.match.matchScore;
-        if(sitter.match.matchScore > 50) return sitter.match;
+        if (sitter.match.matchScore > 50) return sitter.match;
     }
 }
 
@@ -114,7 +113,9 @@ exports.getMatches = (req, res) => {
         }
         else {
             const parent = req.body;
-            const allSitters = _.keyBy(_.map(sitters, '_doc'), function(sitter) {return sitter._id});
+            const allSitters = _.keyBy(_.map(sitters, '_doc'), function (sitter) {
+                return sitter._id
+            });
             const whitelist = _.filter(allSitters, sitter => !(_.includes(parent.blacklist, sitter._id)));
             const descendingScoreList = whitelist.filter(sitter => isMatch(parent, sitter));
             res.status(200).json(_.orderBy(descendingScoreList, ['matchScore'], ['desc']));
@@ -158,7 +159,7 @@ exports.addSitterToBlacklist = (parent) => {
 };
 
 function setMutualFriends(user) {
-    if(user.isParent){
+    if (user.isParent) {
         Parent.findOne().where('_id', user._id).exec(function (err, doc) {
             doc.update({$set: user}).exec(function (err) {
                 if (err) {
@@ -170,7 +171,7 @@ function setMutualFriends(user) {
             });
         });
     }
-    else{
+    else {
         Sitter.findOne().where('_id', user._id).exec(function (err, doc) {
             doc.update({$set: user}).exec(function (err) {
                 if (err) {
@@ -191,23 +192,23 @@ exports.updateMutualFriends = (req, res) => {
         if (err) {
             console.log(err);
         }
-        else{
+        else {
             Sitter.find(function (err, sitters) {
                 if (err) { // the user doesn't exists
                     console.log(err);
                 }
                 else {
-                    let users = _.union(parents,sitters);
-                    for(let index = 0; index < user.friends.length; index++){
-                        for(let j = 0; j < users.length; j++){
-                            if(users[j]._id === user.friends[index].id){
+                    let users = _.union(parents, sitters);
+                    for (let index = 0; index < user.friends.length; index++) {
+                        for (let j = 0; j < users.length; j++) {
+                            if (users[j]._id === user.friends[index].id) {
                                 user.friends[index].picture = users[j].profilePicture;
                                 break;
                             }
                         }
                     }
                     setMutualFriends(user);
-                    status(res,"friends updated");
+                    status(res, "friends updated");
                 }
             });
         }
@@ -303,12 +304,14 @@ exports.sendInvite = (req, res, next) => {
             error(res, err);
         }
         else {
-            parent.invites = _.union(parent.invites, req.body);
+            let invite = req.body;
+            invite.wasRead = true;
+            parent.invites = _.union(parent.invites, invite);
 
             // Notify sitter
             parent.update({$set: parent}).exec(function (err) {
                 if (err) {
-                    error(res,err);
+                    error(res, err);
                 }
                 else {
                     // notifications(sitter.pushNotifications, req.body);
@@ -317,16 +320,16 @@ exports.sendInvite = (req, res, next) => {
                     // }
                     Sitter.findOne().where('_id', sitterID).exec(function (err, sitter) {
                         if (err) {
-                            error(res,err);
+                            error(res, err);
                         }
                         else {
-                            var invite = _.find(sitter.multipleInvites, function(obj) {
+                            var invite = _.find(sitter.multipleInvites, function (obj) {
                                 return obj._id === parentID;
                             });
-                            if(invite){
+                            if (invite) {
                                 invite.count += req.body.length;
                             }
-                            else{
+                            else {
                                 sitter.multipleInvites.push({_id: parentID, count: req.body.length});
                             }
                             _.orderBy(sitter.multipleInvites, ['count'], ['desc']);
@@ -339,10 +342,10 @@ exports.sendInvite = (req, res, next) => {
                                 }
                                 else {
                                     notifications(sitter.pushNotifications, req.body[0]);
-                                    if(parent.senderGCM.valid) {
+                                    if (parent.senderGCM.valid) {
                                         mobileNotifications(sitter.senderGCM.senderId, req.body[0]);
                                     }
-                                    status(res,"invite created in sitter and parent DB");
+                                    status(res, "invite created in sitter and parent DB");
                                 }
                             });
                         }
@@ -355,11 +358,17 @@ exports.sendInvite = (req, res, next) => {
 };
 
 exports.updateInvite = (req, res) => {
-    Sitter.findOne().where('_id', req.body.sitterID).exec(function (err, sitter) {
-        sitter.invites.forEach(invite => {if(invite._id === req.body._id) {
-            invite.status = req.body.status;
-            invite.wasRead = req.body.wasRead;
-        }});
+    let inviteData = req.body.invite;
+    Sitter.findOne().where('_id', inviteData.sitterID).exec(function (err, sitter) {
+        sitter.invites.forEach(invite => {
+            if (invite._id === inviteData._id) {
+                invite.status = inviteData.status;
+                if (!req.body.isParent) {
+                    invite.wasRead = inviteData.wasRead;
+                }
+            }
+        });
+
         sitter.update({$set: sitter}).exec(function (err) {
             if (err) {
                 error(res, err);
@@ -371,33 +380,38 @@ exports.updateInvite = (req, res) => {
         });
     });
 
-    Parent.findOne().where('_id', req.body.parentID).exec(function (err, parent) {
-        if(err){
+    Parent.findOne().where('_id', inviteData.parentID).exec(function (err, parent) {
+        if (err) {
             console.log(err);
         }
         console.log(parent);
-        parent.invites.forEach(invite => {if(invite._id === req.body._id) {
-            invite.status = req.body.status;
-        }});
+        parent.invites.forEach(invite => {
+            if (invite._id === inviteData._id) {
+                invite.status = inviteData.status;
+                if(req.body.isParent && req.body.action === 'wasRead') {
+                    invite.wasRead = true;
+                }
+            }
+        });
         parent.update({$set: parent}).exec(function (err) {
             if (err) {
                 error(res, err);
             }
-            else {
-                if(req.body.status !== 'waiting') {
-                    notifications(parent.pushNotifications.toObject(), req.body);
+            else if (req.body.action !== 'wasRead') {
+                if (inviteData.status !== 'waiting') {
+                    notifications(parent.pushNotifications.toObject(), inviteData);
                     if (parent.senderGCM.valid) {
-                        mobileNotifications(parent.senderGCM.senderId, req.body);
+                        mobileNotifications(parent.senderGCM.senderId, inviteData);
                     }
                 }
-                status(res," updated");
+                status(res, " updated");
             }
         });
     });
 };
 
 function notifications(pushNotifications, data) {
-    if(pushNotifications){
+    if (pushNotifications) {
         //const vapidKeys = webpush.generateVAPIDKeys();
         webpush.setGCMAPIKey('AIzaSyC_cF6XxPyOpQXdM01txENJsPfLQ61lDzE'); // const
         webpush.setVapidDetails(
@@ -418,7 +432,7 @@ function mobileNotifications(senderId, data) {
     var message = new gcm.Message();
     var messageStr = data.message ? data.message : "New Invite";
 
-    message.addData('data',data);
+    message.addData('data', data);
     message.addNotification('message', data.message ? data.message : "New Invite");
 
     console.log(message);
@@ -427,7 +441,7 @@ function mobileNotifications(senderId, data) {
     var regTokens = [senderId];
 
     // Actually send the message
-    sender.send(message, { registrationTokens: regTokens }, function (err, response) {
+    sender.send(message, {registrationTokens: regTokens}, function (err, response) {
         if (err) console.error(err);
         else console.log('success');
     });
