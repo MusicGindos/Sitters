@@ -57,7 +57,7 @@ let notification = new Schema({
     date: Date,
     sitterName: String,
     sitterID: String,
-    sitterPicture: String,
+    sitterImage: String,
     sitterCover: String,
     matchScore: Number,
     sitter: {

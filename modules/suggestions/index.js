@@ -35,7 +35,7 @@ exports.newNotification = (sitter) => {
                         date: new Date().getTime(),
                         sitterName: sitter.name,
                         sitterID: sitter._id,
-                        sitterPicture: sitter.profilePicture,
+                        sitterImage: sitter.profilePicture,
                         sitter: {
                             sitterName: sitter.name,
                             profilePicture: sitter.profilePicture,
