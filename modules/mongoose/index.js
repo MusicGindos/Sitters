@@ -342,7 +342,7 @@ exports.sendInvite = (req, res, next) => {
                                 }
                                 else {
                                     notifications(sitter.pushNotifications, req.body[0]);
-                                    if (parent.senderGCM.valid) {
+                                    if (sitter.senderGCM.valid) {
                                         mobileNotifications(sitter.senderGCM.senderId, req.body[0]);
                                     }
                                     status(res, "invite created in sitter and parent DB");
