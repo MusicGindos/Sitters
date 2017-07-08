@@ -57,18 +57,6 @@ exports.newNotification = (sitter) => {
                             console.log("notification added");
                         }
                     });
-                    // Parent.findOne().where('_id', parent._id).exec(function (err, doc) {
-                    //     doc.update({$set: parent}).exec(function (err) {
-                    //         if (err) {
-                    //             console.log(err);
-                    //         }
-                    //         else {
-                    //             notifications(parent.pushNotifications, notification);
-                    //             console.log("notification added");
-                    //         }
-                    //     });
-                    // });
-
                 }
             });
         }
