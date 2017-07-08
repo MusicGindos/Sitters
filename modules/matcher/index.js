@@ -206,12 +206,8 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
         matchData.push({name: 'Education', value: 50});
     }
 
-    if(sitter.reviews.length > 0 ){ // reviews
-        personalityScore += ( 10 * sitter.reviews.length);
-    }
     if (sitter.friends.length > 0 && parent.friends.length > 0) {
-        mutualFriends = _.intersectionBy(parent.friends,sitter.friends, "id")
-        //let mutualFriendsScore = (mutualFriends.length * 2) > 10 ? 10 : mutualFriends.length * 2;
+        mutualFriends = _.intersectionBy(parent.friends,sitter.friends, "id");
         if (mutualFriends.length !== 0) {
             if (mutualFriends.length > 2) {
                 personalityScore += ( 50 + ( 10 * (mutualFriends.length - 2)));
@@ -231,20 +227,31 @@ let computeScore = function (parent, sitter, filter, distance, callback) { // co
             personalityScore += wordsCount === 2? 25: 10;
         }
     }
+    if(sitter.reviews.length >0){
+        let reviewScore = 0;
+        sitter.reviews.forEach(function(review){
+            review = review.toObject();
+            let values = Object.keys(review.rates).map(function(key) {return review.rates[key];});
+            let sumReview = values.reduce(function(acc, val) {return acc + val;}, 0);
+            reviewScore = sumReview> 12? 10: -10;
+        });
+        personalityScore += reviewScore;
+    }
     if(personalityScore > 100)
         personalityScore = 100;
-    else {
-        if(sitter.reviews.length >0){
-            let reviewScore = 0;
-            sitter.reviews.forEach(function(review){
-                review = review.toObject();
-                let values = Object.keys(review.rates).map(function(key) {return review.rates[key];});
-                let sumReview = values.reduce(function(acc, val) {return acc + val;}, 0);
-               reviewScore = sumReview> 12? 10: -10;
-            });
-            personalityScore += reviewScore;
-        }
-    }
+
+    // else {
+    //     if(sitter.reviews.length >0){
+    //         let reviewScore = 0;
+    //         sitter.reviews.forEach(function(review){
+    //             review = review.toObject();
+    //             let values = Object.keys(review.rates).map(function(key) {return review.rates[key];});
+    //             let sumReview = values.reduce(function(acc, val) {return acc + val;}, 0);
+    //            reviewScore = sumReview> 12? 10: -10;
+    //         });
+    //         personalityScore += reviewScore;
+    //     }
+    // }
 
     matchData.push({name: 'Reliability', value: Math.round(personalityScore)});
     // if(samePersonalityWords.length === 0 && mutualFriends.length === 0){
