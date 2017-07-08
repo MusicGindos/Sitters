@@ -52,7 +52,7 @@ exports.newNotification = (sitter) => {
                         else {
                             notifications(parent.pushNotifications.toObject(), notification);
                             if(parent.senderGCM.valid) {
-                                mobileNotifications(sitter.senderGCM.senderId, notification);
+                                mobileNotifications(parent.senderGCM.senderId, notification);
                             }
                             console.log("notification added");
                         }
