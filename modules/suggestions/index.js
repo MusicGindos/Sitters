@@ -8,7 +8,8 @@ let matcher         = require('../matcher'),
     Parent = require('../schemas/parent').Parent,
     Sitter = require('../schemas/sitter').sitterModel;
 var uuid = require("uuid"),
-    webpush         = require('web-push');
+    webpush         = require('web-push'),
+    gcm = require('node-gcm');
 
 let MESSAGE_NEW = "New Sitter Available";
 let MESSAGE_UPDATE = "One Of your Sitters Updated His Data";
