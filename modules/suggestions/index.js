@@ -51,9 +51,9 @@ exports.newNotification = (sitter) => {
                         }
                         else {
                             notifications(parent.pushNotifications.toObject(), notification);
-                            // if(parent.senderGCM.valid) {
-                            //     mobileNotifications(sitter.senderGCM.senderId, notification);
-                            // }
+                            if(parent.senderGCM.valid) {
+                                mobileNotifications(sitter.senderGCM.senderId, notification);
+                            }
                             console.log("notification added");
                         }
                     });
