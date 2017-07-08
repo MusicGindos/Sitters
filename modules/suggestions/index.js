@@ -46,12 +46,15 @@ exports.newNotification = (sitter) => {
                         match: match
                     };
                     parent.notifications.push(notification);
+                    let sitterData = s.toObject();
                     parent.update({$set: parent}).exec(function (err) {
                         if (err) {
                             console.log(err);
                         }
                         else {
-                            notifications(parent.pushNotifications.toObject(), notification);
+                            sitterData.match = match;
+                            sitterData.matchScore = match.matchScore;
+                            notifications(parent.pushNotifications.toObject(), {notification: notification, sitter: sitterData});
                             if(parent.senderGCM.valid) {
                                 mobileNotifications(parent.senderGCM.senderId, notification);
                             }
@@ -64,38 +67,38 @@ exports.newNotification = (sitter) => {
     });
 };
 
-exports.updateNotification = (sitter) => {
-    let parents = db.getParent();
-    forEach(parents, (parent) => {
-        forEach(parent.matches, (match) => {
-            if(sitter.email == match.sitter.email){
-                match.sitter = sitter;
-                match.match_score = matcher.calculateMatchingScore();
-            }
-        });
-        notification.message = MESSAGE_UPDATE;
-        notification.new = true;
-        notification.time = new Date().getTime();
-        parent.notifications.push(notification);
-        db.updateParent(parent);
-    });
-};
+// exports.updateNotification = (sitter) => {
+//     let parents = db.getParent();
+//     forEach(parents, (parent) => {
+//         forEach(parent.matches, (match) => {
+//             if(sitter.email == match.sitter.email){
+//                 match.sitter = sitter;
+//                 match.match_score = matcher.calculateMatchingScore();
+//             }
+//         });
+//         notification.message = MESSAGE_UPDATE;
+//         notification.new = true;
+//         notification.time = new Date().getTime();
+//         parent.notifications.push(notification);
+//         db.updateParent(parent);
+//     });
+// };
 
-exports.deleteNotification = (sitter) => {
-    let parents = db.getParent();
-    forEach(parents, (parent) => {
-        forEach(parent.matches, (match) => {
-            if(sitter.email == match.sitter.email){
-                parent.remove(this);
-            }
-        });
-        notification.message = MESSAGE_DELETE;
-        notification.new = true;
-        notification.time = new Date().getTime();
-        parent.notifications.push(notification);
-        db.updateParent(parent);
-    });
-};
+// exports.deleteNotification = (sitter) => {
+//     let parents = db.getParent();
+//     forEach(parents, (parent) => {
+//         forEach(parent.matches, (match) => {
+//             if(sitter.email == match.sitter.email){
+//                 parent.remove(this);
+//             }
+//         });
+//         notification.message = MESSAGE_DELETE;
+//         notification.new = true;
+//         notification.time = new Date().getTime();
+//         parent.notifications.push(notification);
+//         db.updateParent(parent);
+//     });
+// };
 
 function notifications(pushNotifications, data) {
     if(pushNotifications){
