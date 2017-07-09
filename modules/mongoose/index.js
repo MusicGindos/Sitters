@@ -342,7 +342,7 @@ exports.sendInvite = (req, res, next) => {
                                 }
                                 else {
                                     notifications(sitter.pushNotifications, req.body[0]);
-                                    if (sitter.senderGCM.valid) {
+                                    if (sitter.senderGCM !== null && typeof sitter.senderGCM !== 'undefined' && sitter.senderGCM.valid) {
                                         mobileNotifications(sitter.senderGCM.senderId, req.body[0]);
                                     }
                                     status(res, "invite created in sitter and parent DB");
@@ -400,7 +400,7 @@ exports.updateInvite = (req, res) => {
             else if (req.body.action !== 'wasRead') {
                 if (inviteData.status !== 'waiting') {
                     notifications(parent.pushNotifications.toObject(), inviteData);
-                    if (parent.senderGCM.valid) {
+                    if (parent.senderGCM !== null && typeof parent.senderGCM !== 'undefined' && parent.senderGCM.valid) {
                         mobileNotifications(parent.senderGCM.senderId, inviteData);
                     }
                 }

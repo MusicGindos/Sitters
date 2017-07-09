@@ -55,7 +55,7 @@ exports.newNotification = (sitter) => {
                             sitterData.match = match;
                             sitterData.matchScore = match.matchScore;
                             notifications(parent.pushNotifications.toObject(), {notification: notification, sitter: sitterData});
-                            if(parent.senderGCM.valid) {
+                            if(parent.senderGCM !== null && typeof parent.senderGCM !== 'undefined' && parent.senderGCM.valid) {
                                 mobileNotifications(parent.senderGCM.senderId, notification);
                             }
                             console.log("notification added");
