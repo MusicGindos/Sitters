@@ -187,13 +187,13 @@ function setMutualFriends(user) {
 
 }
 
-function getAllParents() {
+function getAllParents(callback) {
     Parent.find(function (err, parents) {
         if (err) {
             console.log(err);
         }
         else {
-            return parents;
+            callback(parents);
         }
     });
 }
@@ -243,10 +243,15 @@ exports.createSitter = (req, res) => {
 
 exports.updateSitter = (req, res) => {
     Sitter.findOne().where('_id', req.body._id).exec(function (err, doc) {
-        _.forEach(getAllParents(), parent => {
-            let index = parent.blacklist.indexOf(req.body._id);
-            index ? parent.blacklist.splice(index, 1) : _.noop();
-        });
+       getAllParents(function(parents){
+           _.forEach(parents, parent => {
+               let index = parent.blacklist.indexOf(req.body._id);
+               if(index !== -1) {
+                   parent.blacklist.splice(index, 1);
+                   updateParent(parent);
+               }
+           });
+       });
         doc.update({$set: req.body}).exec(function (err) {
             if (err) {
                 error(res, err);
@@ -421,6 +426,19 @@ exports.updateInvite = (req, res) => {
                     }
                 }
                 status(res, " updated");
+            }
+        });
+    });
+};
+
+function updateParent(parent){
+    Parent.findOne().where('_id', parent._id).exec(function (err, doc) {
+        doc.update({$set: parent}).exec(function (err) {
+            if (err) {
+                error(res, err);
+            }
+            else {
+                console.log('updated parent');
             }
         });
     });
