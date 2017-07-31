@@ -72,6 +72,7 @@ exports.createParent = (req, res) => {
 
 exports.updateParent = (req, res) => {
     Parent.findOne().where('_id', req.body._id).exec(function (err, doc) {
+        req.body.blacklist = [];
         doc.update({$set: req.body}).exec(function (err) {
             if (err) {
                 error(res, err);
@@ -184,7 +185,18 @@ function setMutualFriends(user) {
         });
     }
 
-};
+}
+
+function getAllParents() {
+    Parent.find(function (err, parents) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            return parents;
+        }
+    });
+}
 
 exports.updateMutualFriends = (req, res) => {
     let user = req.body;
@@ -231,6 +243,10 @@ exports.createSitter = (req, res) => {
 
 exports.updateSitter = (req, res) => {
     Sitter.findOne().where('_id', req.body._id).exec(function (err, doc) {
+        _.forEach(getAllParents(), parent => {
+            let index = parent.blacklist.indexOf(req.body._id);
+            index ? parent.blacklist.splice(index, 1) : _.noop();
+        });
         doc.update({$set: req.body}).exec(function (err) {
             if (err) {
                 error(res, err);
@@ -388,7 +404,7 @@ exports.updateInvite = (req, res) => {
         parent.invites.forEach(invite => {
             if (invite._id === inviteData._id) {
                 invite.status = inviteData.status;
-                if(req.body.isParent && req.body.action === 'wasRead') {
+                if (req.body.isParent && req.body.action === 'wasRead') {
                     invite.wasRead = true;
                 }
             }
