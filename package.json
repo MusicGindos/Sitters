@@ -1,7 +1,7 @@
 {
   "name": "sitters",
   "version": "1.0.0",
-  "description": "Application for invite sitters",
+  "description": "api for matching parents with sitters",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

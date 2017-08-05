@@ -1,21 +1,28 @@
 'use strict';
-let mongoose = require('mongoose'),
-    Parent = require('../schemas/parent').Parent,
-    Sitter = require('../schemas/sitter').sitterModel,
-    base = require('../schemas/base'),
+
+// dependencies
+const mongoose = require('mongoose'),
+    _ = require("lodash"),
+    webpush = require('web-push'),
     gcm = require('node-gcm'),
-    db,
     moment = require('moment'),
     clone = require('clone'),
-    matcher = require('./../matcher'),
-    config = {
-        mongoUrl: 'mongodb://sitter:123456@ds157499.mlab.com:57499/sitter'
-    },
-    finish = true,
-    _ = require("lodash"),
-    webpush = require('web-push');
+    matcher = require('./../matcher');
 
+// schemes
+const base = require('../schemas/base'),
+    Parent = require('../schemas/parent').Parent,
+    Sitter = require('../schemas/sitter').sitterModel;
 
+// configurations
+const config = {mongoUrl: 'mongodb://sitter:123456@ds157499.mlab.com:57499/sitter'};
+const options = {
+    server: {
+        auto_reconnect: true,
+    }
+};
+
+// response objects
 let error = (res, error) => {
     console.log(error.message);
     res.status(400).json({
@@ -27,18 +34,10 @@ let status = (res, status) => {
     res.status(200).json({'status': status});
 };
 
-console.log('connection');
-
-//The server option auto_reconnect is defaulted to true
-let options = {
-    server: {
-        auto_reconnect: true,
-    }
-};
 mongoose.connect(config.mongoUrl, options);
-db = mongoose.connection;// a global connection variable
+let db = mongoose.connection;// a global connection variable
 
-// Event handlers for Mongoose
+// event handlers for Mongoose
 db.on('error', function (err) {
     console.log('Mongoose: Error: ' + err);
 });
@@ -61,7 +60,7 @@ async function getParent(user_id) {
     try {
         return await Parent.findOne().where('_id', user_id);
     }
-    catch(error) {
+    catch (error) {
         return error;
     }
 }
@@ -70,19 +69,29 @@ async function getSitter(user_id) {
     try {
         return await Sitter.findOne().where('_id', user_id);
     }
-    catch(error) {
+    catch (error) {
         return error;
     }
 }
 
-exports.getUser = async (req, res) => {
-    let user;
-    const user_id = req.body._id;
-    user = await getParent(user_id);
-    if(user) res.status(200).json(user);
-    else user = await getSitter(user_id);
-    user ? res.status(200).json(user) : res.status(404).json({error: 'User not found'});
-};
+async function getParents() {
+    try {
+        return await Parent.find({});
+    }
+    catch (error) {
+        return error;
+    }
+}
+
+async function getSitters() {
+    try {
+        return await Sitter.find({});
+    }
+    catch (error) {
+        return error;
+    }
+}
+
 
 exports.createUser = (req, res) => {
     let user = req.body.isParent ? new Parent(req.body) : new Sitter(req.body);
@@ -91,86 +100,123 @@ exports.createUser = (req, res) => {
             error(res, err);
         }
         else {
-            status(res, req.body.email + " created");
+            status(res, req.body.name + " created");
         }
     });
 };
 
-exports.updateParent = (req, res) => {
-    Parent.findOne().where('_id', req.body._id).exec(function (err, doc) {
-        req.body.blacklist = [];
-        doc.update({$set: req.body}).exec(function (err) {
-            if (err) {
-                error(res, err);
-            }
-            else {
-                status(res, req.body.email + " updated");
-            }
+exports.getUser = async(req, res) => {
+    let user;
+    const user_id = req.body._id;
+    user = await getParent(user_id);
+    if (user) res.status(200).json(user);
+    else user = await getSitter(user_id);
+    user ? res.status(200).json(user) : res.status(404).json({error: 'User not found'});
+};
+
+exports.updateUser = async(req, res, next) => {
+    let user;
+    if (req.body.isParent) {
+        user = new Parent(req.body);
+        // empty parent blacklist
+        user.blacklist = [];
+    }
+    else {
+        user = new Sitter(req.body);
+        // remove sitter from parents blacklists
+        const parents = await getParents();
+        _.forEach(parents, parent => {
+            let index = parent.blacklist.indexOf(user._id);
+            index ? parent.blacklist.splice(index, 1) : _.noop();
         });
+    }
+    user.update({$set: user}, function (err) {
+        if (err) {
+            error(res, err);
+        }
+        else {
+            status(res, req.body.name + " updated");
+        }
     });
 };
 
-exports.deleteParent = (req, res) => {
-    Parent.findOne().where('_id', req.body._id).exec(function (err, doc) {
-        doc.remove(function (err) {
-            if (err) {
-                error(res, err);
-            }
-            else {
-                status(res, req.body.email + " deleted");
-            }
-        });
+exports.deleteUser = async(req, res, next) => {
+    let user;
+    const user_id = req.body._id;
+    user = await getParent(user_id);
+    if (user) res.status(200).json(user);
+    else user = await getSitter(user_id);
+    user.remove(function (err) {
+        if (err) {
+            error(res, err);
+        }
+        else {
+            status(res, user.name + " deleted");
+        }
     });
 };
 
 
-function isMatch(parent, sitter) {
-    // let median = parent.matchBI.median? parent.matchBI.median: 40;
+function getMatch(parent, sitter) {
     if (sitter.settings.allowShowOnSearch) {
+        // deep clone match object
         sitter.match = clone(matcher.calculateMatchingScore(parent, sitter));
-        sitter.matchScore = sitter.match.matchScore;
-        if (sitter.match.matchScore > 50) return sitter.match;
+        return sitter.match;
     }
 }
 
-exports.getMatches = (req, res) => {
-    Sitter.find(function (err, sitters) {
-        if (err) {
-            error(res, err);
-        }
-        else {
-            const parent = req.body;
-            const allSitters = _.keyBy(_.map(sitters, '_doc'), function (sitter) {
-                return sitter._id
-            });
-            const whitelist = _.filter(allSitters, sitter => !(_.includes(parent.blacklist, sitter._id)));
-            const descendingScoreList = whitelist.filter(sitter => isMatch(parent, sitter));
-            res.status(200).json(_.orderBy(descendingScoreList, ['matchScore'], ['desc']));
-        }
-    });
+exports.getMatches = async(req, res) => {
+    const sitters = await getSitters();
+    if (sitters) {
+        const parent = req.body;
+        // flatten sitters to key value pairs (id -> sitterDetails)
+        const sittersMap = _.keyBy(_.map(sitters, '_doc'), function (sitter) {
+            return sitter._id
+        });
+        // find sitters that are not blacklisted for this parent
+        const whitelist = _.filter(sittersMap, sitter => !(_.includes(parent.blacklist, sitter._id)));
+
+        // find matching sitters in whitelist
+        const matchingSitters = whitelist.filter(sitter => getMatch(parent, sitter).matchScore > 50);
+
+        // return a descending ordered list of matching sitters
+        res.status(200).json(_.orderBy(matchingSitters, ['matchScore'], ['desc']));
+    }
+    else {
+        error(res, "No sitters found");
+    }
 };
 
-exports.getParent = (req, res) => {
-    Parent.findOne().where('_id', req.body._id).exec(function (err, doc) {
-        if (err) {
-            error(res, err);
-        }
-        else {
-            res.status(200).json(doc);
-        }
-    });
-};
-
-exports.getParents = () => {
+exports.updateFriends = (req, res) => {
+    let user = req.body;
     Parent.find(function (err, parents) {
         if (err) {
             console.log(err);
         }
         else {
-            return parents;
+            Sitter.find(function (err, sitters) {
+                if (err) { // the user doesn't exists
+                    console.log(err);
+                }
+                else {
+                    let users = _.union(parents, sitters);
+                    for (let index = 0; index < user.friends.length; index++) {
+                        for (let j = 0; j < users.length; j++) {
+                            if (users[j]._id === user.friends[index].id) {
+                                user.friends[index].picture = users[j].profilePicture;
+                                break;
+                            }
+                        }
+                    }
+                    setMutualFriends(user);
+                    status(res, "friends updated");
+                }
+            });
         }
+
     });
 };
+
 
 exports.addSitterToBlacklist = (parent) => {
     Parent.findOne().where('_id', parent._id).exec(function (err, doc) {
@@ -212,105 +258,6 @@ function setMutualFriends(user) {
     }
 
 }
-
-function getAllParents(callback) {
-    Parent.find(function (err, parents) {
-        if (err) {
-            console.log(err);
-        }
-        else {
-            callback(parents);
-        }
-    });
-}
-
-exports.updateMutualFriends = (req, res) => {
-    let user = req.body;
-    Parent.find(function (err, parents) {
-        if (err) {
-            console.log(err);
-        }
-        else {
-            Sitter.find(function (err, sitters) {
-                if (err) { // the user doesn't exists
-                    console.log(err);
-                }
-                else {
-                    let users = _.union(parents, sitters);
-                    for (let index = 0; index < user.friends.length; index++) {
-                        for (let j = 0; j < users.length; j++) {
-                            if (users[j]._id === user.friends[index].id) {
-                                user.friends[index].picture = users[j].profilePicture;
-                                break;
-                            }
-                        }
-                    }
-                    setMutualFriends(user);
-                    status(res, "friends updated");
-                }
-            });
-        }
-
-    });
-};
-
-exports.updateSitter = (req, res) => {
-    Sitter.findOne().where('_id', req.body._id).exec(function (err, doc) {
-       getAllParents(function(parents){
-           _.forEach(parents, parent => {
-               let index = parent.blacklist.indexOf(req.body._id);
-               if(index !== -1) {
-                   parent.blacklist.splice(index, 1);
-                   updateParent(parent);
-               }
-           });
-       });
-        doc.update({$set: req.body}).exec(function (err) {
-            if (err) {
-                error(res, err);
-            }
-            else {
-                status(res, req.body.email + " updated");
-            }
-        });
-    });
-};
-
-exports.deleteSitter = (req, res) => {
-    Sitter.findOne().where('_id', req.body._id).exec(function (err, doc) {
-        doc.remove(function (err) {
-            if (err) {
-                error(res, err);
-            }
-            else {
-                status(res, req.body.email + " deleted");
-            }
-        });
-    });
-};
-
-exports.getSitter = (req, res) => {
-    Sitter.findOne().where('_id', req.body._id).exec(function (err, doc) {
-        if (err) {
-            error(res, err);
-        }
-        else {
-            res.status(200).json(doc);
-        }
-    });
-};
-
-exports.getSitters = (req, res) => {
-    Sitter.find(function (err, sitters) {
-        if (err) {
-            error(res, err);
-        }
-        else {
-            res.status(200).json(sitters);
-        }
-    });
-};
-
 
 
 exports.sendInvite = (req, res, next) => {
@@ -422,19 +369,6 @@ exports.updateInvite = (req, res) => {
                     }
                 }
                 status(res, " updated");
-            }
-        });
-    });
-};
-
-function updateParent(parent){
-    Parent.findOne().where('_id', parent._id).exec(function (err, doc) {
-        doc.update({$set: parent}).exec(function (err) {
-            if (err) {
-                error(res, err);
-            }
-            else {
-                console.log('updated parent');
             }
         });
     });
