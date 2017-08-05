@@ -57,6 +57,34 @@ db.once('open', function () { // if needed to do action once got connection
 
 });
 
+async function getParent(user_id) {
+    try {
+        return await Parent.findOne().where('_id', user_id);
+    }
+    catch(error) {
+        return error;
+    }
+}
+
+async function getSitter(user_id) {
+    try {
+        return await Sitter.findOne().where('_id', user_id);
+    }
+    catch(error) {
+        return error;
+    }
+}
+
+exports.getUser = async (req, res) => {
+    let user;
+    const user_id = req.body._id;
+    user = await getParent(user_id);
+    if(user) res.status(200).json(user);
+    else user = await getSitter(user_id);
+    user ? res.status(200).json(user) : res.status(404).json({error: 'User not found'});
+};
+
+
 //Parent
 exports.createParent = (req, res) => {
     let parent = new Parent(req.body);
@@ -298,24 +326,7 @@ exports.getSitters = (req, res) => {
     });
 };
 
-exports.getUser = (req, res) => {
-    Parent.findOne().where('_id', req.body._id).exec(function (err, parent) {
-        if (parent === null) {
-            //error(res,err);
-            Sitter.findOne().where('_id', req.body._id).exec(function (err, sitter) {
-                if (err) { // the user doesn't exists
-                    res.status(200).json({'error': "user doesn't exist"});
-                }
-                else {
-                    res.status(200).json(sitter);
-                }
-            });
-        }
-        else {
-            res.status(200).json(parent);
-        }
-    });
-};
+
 
 exports.sendInvite = (req, res, next) => {
     const parentID = req.body[0].parentID;
