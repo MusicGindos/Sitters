@@ -84,11 +84,9 @@ exports.getUser = async (req, res) => {
     user ? res.status(200).json(user) : res.status(404).json({error: 'User not found'});
 };
 
-
-//Parent
-exports.createParent = (req, res) => {
-    let parent = new Parent(req.body);
-    parent.save(function (err) {
+exports.createUser = (req, res) => {
+    let user = req.body.isParent ? new Parent(req.body) : new Sitter(req.body);
+    user.save(function (err) {
         if (err) {
             error(res, err);
         }
@@ -253,19 +251,6 @@ exports.updateMutualFriends = (req, res) => {
             });
         }
 
-    });
-};
-
-//Sitter
-exports.createSitter = (req, res) => {
-    let sitter = new Sitter(req.body);
-    sitter.save(function (err) {
-        if (err) {
-            error(res, err);
-        }
-        else {
-            status(res, req.body.email + " created");
-        }
     });
 };
 
