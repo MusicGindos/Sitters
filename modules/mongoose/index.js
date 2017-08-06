@@ -103,6 +103,48 @@ async function updateUser(user) {
     }
 }
 
+function pushNotification(notifications, senderGCM, invite) {
+    webNotifications(notifications, invite);
+    if (senderGCM !== null && typeof senderGCM !== 'undefined' && senderGCM.valid)
+        mobileNotifications(senderGCM.senderId, invite);
+}
+
+function webNotifications(pushNotifications, data) {
+    if (pushNotifications) {
+        webpush.setGCMAPIKey('AIzaSyC_cF6XxPyOpQXdM01txENJsPfLQ61lDzE'); // const
+        webpush.setVapidDetails(
+            'mailto:arel-g@hotmail.com', // const
+            "BA9TXkOAudBsHZCtma-VftBiXmAc-Ho4M7SwAXRpZDR-DsE6pdMP_HVTTQaa3vkQuHLcB6hB87yiunJFUEa4Pas", // const
+            "9wDAtLKaQZh08dyQzkLkXHnLSGbMeeLA0TErWrE_Gjw"
+        );
+        webpush.sendNotification(pushNotifications, JSON.stringify(data));
+    }
+}
+
+function mobileNotifications(senderId, data) {
+    // Set up the sender with your GCM/FCM API key (declare this once for multiple messages)
+    var sender = new gcm.Sender('AIzaSyAy5Z6ByEm4CX3YwohagPTOi0qlMC3XPaU');
+    console.log('mobileNotifications');
+
+    // Prepare a message to be sent
+    var message = new gcm.Message();
+    var messageStr = data.message ? data.message : "New Invite";
+
+    message.addData('data', data);
+    message.addNotification('message', data.message ? data.message : "New Invite");
+
+    console.log(message);
+
+    // Specify which registration IDs to deliver the message to
+    var regTokens = [senderId];
+
+    // Actually send the message
+    sender.send(message, {registrationTokens: regTokens}, function (err, response) {
+        if (err) console.error(err);
+        else console.log('success');
+    });
+}
+
 
 exports.createUser = (req, res) => {
     let user = req.body.isParent ? new Parent(req.body) : new Sitter(req.body);
@@ -170,6 +212,17 @@ function getMatch(parent, sitter) {
     }
 }
 
+function updateMultipleInvites(multipleInvites, invites) {
+    let sitterInvite = _.find(multipleInvites, function (obj) { // find parent in multiple invites
+        return obj._id === invites[0].parentID;
+    });
+    if (sitterInvite) // if parent was found - counter ++
+        sitterInvite.count += invites.length;
+    else // add parent to multiple invites with count=invites.length
+        multipleInvites.push({_id: invites[0].parentID, count: invites.length});
+    _.orderBy(multipleInvites, ['count'], ['desc']);
+}
+
 exports.getMatches = async(req, res) => {
     const sitters = await getSitters();
     if (sitters) {
@@ -192,12 +245,12 @@ exports.getMatches = async(req, res) => {
     }
 };
 
-exports.updateFriends = async (req, res) => {
+exports.updateFriends = async(req, res) => {
     let user = req.body;
     const parents = await
-    getParents();
+        getParents();
     const sitters = await
-    getSitters();
+        getSitters();
     const users = _.union(parents, sitters);
     for (let index = 0; index < user.friends.length; index++) {
         for (let j = 0; j < users.length; j++) {
@@ -225,153 +278,69 @@ exports.addSitterToBlacklist = (parent) => {
     });
 };
 
-exports.sendInvite = (req, res, next) => {
-    const parentID = req.body[0].parentID;
-    const sitterID = req.body[0].sitterID;
-    Parent.findOne().where('_id', parentID).exec(function (err, parent) {
-        if (err) {
-            error(res, err);
-        }
+exports.sendInvite = async(req, res, next) => {
+    const invites = req.body;
+    const parent = await getParent(invites[0].parentID);
+    const sitter = await getSitter(invites[0].sitterID);
+    let parentInvites = invites;
+
+    //parent
+    parentInvites.forEach(function (invite) {
+        invite.wasRead = true;
+    });
+    // add invites to parent invites
+    parent.invites = _.union(parent.invites, parentInvites);
+    const result = await updateUser(parent);
+
+    //sitter
+    if (!result) {
+        updateMultipleInvites(sitter.multipleInvites, invites);
+        // add invites to sitter invites
+        sitter.invites = _.union(sitter.invites, invites);
+        sitter.lastInvite = moment().format("DD/MM/YYYY");
+        const response = await updateUser(sitter);
+
+        if (response)
+            error(res, response);
         else {
-            let invite = req.body;
-            invite.wasRead = true;
-            parent.invites = _.union(parent.invites, invite);
-
-            // Notify sitter
-            parent.update({$set: parent}).exec(function (err) {
-                if (err) {
-                    error(res, err);
-                }
-                else {
-                    // notifications(sitter.pushNotifications, req.body);
-                    // if(parent.senderGCM.valid) {
-                    //     mobileNotifications(parent.senderGCM.senderId, req.body);
-                    // }
-                    Sitter.findOne().where('_id', sitterID).exec(function (err, sitter) {
-                        if (err) {
-                            error(res, err);
-                        }
-                        else {
-                            var invite = _.find(sitter.multipleInvites, function (obj) {
-                                return obj._id === parentID;
-                            });
-                            if (invite) {
-                                invite.count += req.body.length;
-                            }
-                            else {
-                                sitter.multipleInvites.push({_id: parentID, count: req.body.length});
-                            }
-                            _.orderBy(sitter.multipleInvites, ['count'], ['desc']);
-
-                            sitter.invites = _.union(sitter.invites, req.body);
-                            sitter._doc.lastInvite = moment().format("DD/MM/YYYY");
-                            sitter.update({$set: sitter}).exec(function (err) {
-                                if (err) {
-                                    error(res, err);
-                                }
-                                else {
-                                    notifications(sitter.pushNotifications, req.body[0]);
-                                    if (sitter.senderGCM !== null && typeof sitter.senderGCM !== 'undefined' && sitter.senderGCM.valid) {
-                                        mobileNotifications(sitter.senderGCM.senderId, req.body[0]);
-                                    }
-                                    status(res, "invite created in sitter and parent DB");
-                                }
-                            });
-                        }
-                    });
-                }
-            });
+            // send notification to sitter
+            pushNotification(sitter.pushNotifications, sitter.senderGCM, invites[0]);
+            status(res, "invite created by " + parent.name + "and sent to " + sitter.name);
         }
-    });
-
-};
-
-exports.updateInvite = (req, res) => {
-    let inviteData = req.body.invite;
-    Sitter.findOne().where('_id', inviteData.sitterID).exec(function (err, sitter) {
-        sitter.invites.forEach(invite => {
-            if (invite._id === inviteData._id) {
-                invite.status = inviteData.status;
-                if (!req.body.isParent) {
-                    invite.wasRead = inviteData.wasRead;
-                }
-            }
-        });
-
-        sitter.update({$set: sitter}).exec(function (err) {
-            if (err) {
-                error(res, err);
-            }
-            else {
-                // TODO : new logic
-
-            }
-        });
-    });
-
-    Parent.findOne().where('_id', inviteData.parentID).exec(function (err, parent) {
-        if (err) {
-            console.log(err);
-        }
-        console.log(parent);
-        parent.invites.forEach(invite => {
-            if (invite._id === inviteData._id) {
-                invite.status = inviteData.status;
-                if (req.body.isParent && req.body.action === 'wasRead') {
-                    invite.wasRead = true;
-                }
-            }
-        });
-        parent.update({$set: parent}).exec(function (err) {
-            if (err) {
-                error(res, err);
-            }
-            else if (req.body.action !== 'wasRead') {
-                if (inviteData.status !== 'waiting') {
-                    notifications(parent.pushNotifications.toObject(), inviteData);
-                    if (parent.senderGCM !== null && typeof parent.senderGCM !== 'undefined' && parent.senderGCM.valid) {
-                        mobileNotifications(parent.senderGCM.senderId, inviteData);
-                    }
-                }
-                status(res, " updated");
-            }
-        });
-    });
-};
-
-function notifications(pushNotifications, data) {
-    if (pushNotifications) {
-        //const vapidKeys = webpush.generateVAPIDKeys();
-        webpush.setGCMAPIKey('AIzaSyC_cF6XxPyOpQXdM01txENJsPfLQ61lDzE'); // const
-        webpush.setVapidDetails(
-            'mailto:arel-g@hotmail.com', // const
-            "BA9TXkOAudBsHZCtma-VftBiXmAc-Ho4M7SwAXRpZDR-DsE6pdMP_HVTTQaa3vkQuHLcB6hB87yiunJFUEa4Pas", // const
-            "9wDAtLKaQZh08dyQzkLkXHnLSGbMeeLA0TErWrE_Gjw"
-        );
-        webpush.sendNotification(pushNotifications, JSON.stringify(data));
     }
-}
+    else
+        error(res, result);
+};
 
-function mobileNotifications(senderId, data) {
-    // Set up the sender with your GCM/FCM API key (declare this once for multiple messages)
-    var sender = new gcm.Sender('AIzaSyAy5Z6ByEm4CX3YwohagPTOi0qlMC3XPaU');
-    console.log('mobileNotifications');
+exports.updateInvite = async(req, res) => {
+    const inviteData = req.body.invite;
+    const parent = await getParent(inviteData.parentID);
+    const sitter = await getSitter(inviteData.sitterID);
 
-    // Prepare a message to be sent
-    var message = new gcm.Message();
-    var messageStr = data.message ? data.message : "New Invite";
-
-    message.addData('data', data);
-    message.addNotification('message', data.message ? data.message : "New Invite");
-
-    console.log(message);
-
-    // Specify which registration IDs to deliver the message to
-    var regTokens = [senderId];
-
-    // Actually send the message
-    sender.send(message, {registrationTokens: regTokens}, function (err, response) {
-        if (err) console.error(err);
-        else console.log('success');
+    // sitter
+    sitter.invites.forEach(invite => {
+        if (invite._id === inviteData._id) {
+            invite.status = inviteData.status;
+            invite.wasRead = inviteData.wasRead;
+        }
     });
-}
+    let result = await updateUser(sitter);
+
+    //parent
+    parent.invites.forEach(invite => {
+        if (invite._id === inviteData._id) {
+            invite.status = inviteData.status;
+            if (req.body.action === 'wasRead') invite.wasRead = true;
+        }
+    });
+
+    result = await updateUser(parent);
+
+    if (result) error(res, result);
+    else if (req.body.action !== 'wasRead' && inviteData.status !== 'waiting')
+        pushNotification(parent.pushNotifications.toObject(), parent.senderGCM, inviteData);
+
+    status(res, "invite updated");
+
+};
+

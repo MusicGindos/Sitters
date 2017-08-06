@@ -33,7 +33,7 @@ app.post('/user/update', controller.updateUser);
 app.delete('/user/delete', controller.deleteUser);
 app.post('/parent/getMatches', controller.getMatches);
 app.post('/user/updateFriends', controller.updateFriends);
-app.post('/invite/create', controller.sendInvite);
+app.post('/invite/send', controller.sendInvite);
 app.post('/invite/update', controller.updateInvite);
 
 

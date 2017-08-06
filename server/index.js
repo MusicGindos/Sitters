@@ -37,25 +37,6 @@ exports.sendInvite = (req, res, next) => {
     mongoose.sendInvite(req, res, next);
 };
 
-exports.sendReview = (req, res, next) => {
-    mongoose.sendReview(req, res, next);
-};
-
-exports.sendInvite = (req, res, next) => {
-    mongoose.sendInvite(req, res, next);
-    //get parent
-    //get sitter
-    //set parent
-    //set sitter
-    //TODO: insert into parent + sitter db
-};
-
-exports.writeReview = (req, res, next) => {
-    //get sitter
-    //set sitter
-//TODO: insert into sitter db only
-};
-
 exports.updateInvite = (req, res, next) => {
     mongoose.updateInvite(req, res, next);
 };
