@@ -92,6 +92,17 @@ async function getSitters() {
     }
 }
 
+async function updateUser(user) {
+    try {
+        await user.update({$set: user}, function (result) {
+            return result;
+        });
+    }
+    catch (error) {
+        return error;
+    }
+}
+
 
 exports.createUser = (req, res) => {
     let user = req.body.isParent ? new Parent(req.body) : new Sitter(req.body);
@@ -130,14 +141,8 @@ exports.updateUser = async(req, res, next) => {
             index ? parent.blacklist.splice(index, 1) : _.noop();
         });
     }
-    user.update({$set: user}, function (err) {
-        if (err) {
-            error(res, err);
-        }
-        else {
-            status(res, req.body.name + " updated");
-        }
-    });
+    const result = await updateUser(user);
+    result ? error(res, result) : status(res, user.name + " updated");
 };
 
 exports.deleteUser = async(req, res, next) => {
@@ -187,34 +192,23 @@ exports.getMatches = async(req, res) => {
     }
 };
 
-exports.updateFriends = (req, res) => {
+exports.updateFriends = async (req, res) => {
     let user = req.body;
-    Parent.find(function (err, parents) {
-        if (err) {
-            console.log(err);
+    const parents = await
+    getParents();
+    const sitters = await
+    getSitters();
+    const users = _.union(parents, sitters);
+    for (let index = 0; index < user.friends.length; index++) {
+        for (let j = 0; j < users.length; j++) {
+            if (users[j]._id === user.friends[index].id) {
+                user.friends[index].picture = users[j].profilePicture;
+                break;
+            }
         }
-        else {
-            Sitter.find(function (err, sitters) {
-                if (err) { // the user doesn't exists
-                    console.log(err);
-                }
-                else {
-                    let users = _.union(parents, sitters);
-                    for (let index = 0; index < user.friends.length; index++) {
-                        for (let j = 0; j < users.length; j++) {
-                            if (users[j]._id === user.friends[index].id) {
-                                user.friends[index].picture = users[j].profilePicture;
-                                break;
-                            }
-                        }
-                    }
-                    setMutualFriends(user);
-                    status(res, "friends updated");
-                }
-            });
-        }
-
-    });
+    }
+    const result = await updateUser(user);
+    result ? error(res, result) : status(res, user.name + " friends updated");
 };
 
 
@@ -230,35 +224,6 @@ exports.addSitterToBlacklist = (parent) => {
         });
     });
 };
-
-function setMutualFriends(user) {
-    if (user.isParent) {
-        Parent.findOne().where('_id', user._id).exec(function (err, doc) {
-            doc.update({$set: user}).exec(function (err) {
-                if (err) {
-                    console.log(err);
-                }
-                else {
-                    console.log('mutual friends updated');
-                }
-            });
-        });
-    }
-    else {
-        Sitter.findOne().where('_id', user._id).exec(function (err, doc) {
-            doc.update({$set: user}).exec(function (err) {
-                if (err) {
-                    console.log(err);
-                }
-                else {
-                    console.log('mutual friends updated');
-                }
-            });
-        });
-    }
-
-}
-
 
 exports.sendInvite = (req, res, next) => {
     const parentID = req.body[0].parentID;
