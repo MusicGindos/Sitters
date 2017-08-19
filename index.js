@@ -2,7 +2,7 @@
 
 // dependencies
 const express = require('express'),
-    controller = require('./server'),
+    controller = require('./sittersAPI'),
     cors = require('cors'),
     bodyParser = require('body-parser');
 

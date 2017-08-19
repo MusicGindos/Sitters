@@ -204,12 +204,13 @@ exports.deleteUser = async(req, res, next) => {
 };
 
 
-function getMatch(parent, sitter) {
+function isMatch(parent, sitter) {
     if (sitter.settings.allowShowOnSearch) {
-        // deep clone match object
-        sitter.match = clone(matcher.calculateMatchingScore(parent, sitter));
-        return sitter.match;
+        sitter.match = clone(matcher.computeMatch(parent, sitter));
+        sitter.matchScore = sitter.match.matchScore;
+       if (sitter.match.matchScore > 50) return true;
     }
+    return false;
 }
 
 function updateMultipleInvites(multipleInvites, invites) {
@@ -235,7 +236,7 @@ exports.getMatches = async(req, res) => {
         const whitelist = _.filter(sittersMap, sitter => !(_.includes(parent.blacklist, sitter._id)));
 
         // find matching sitters in whitelist
-        const matchingSitters = whitelist.filter(sitter => getMatch(parent, sitter).matchScore > 50);
+        const matchingSitters = _.filter(whitelist, sitter => isMatch(parent, sitter));
 
         // return a descending ordered list of matching sitters
         res.status(200).json(_.orderBy(matchingSitters, ['matchScore'], ['desc']));

@@ -25,7 +25,7 @@ exports.newNotification = (sitter) => {
         else {
             _.forEach(parents, (parent) => {
                 //const match = clone(matcher.calculateMatchingScore(parent, s));
-                let match = matcher.calculateMatchingScore(parent, s);
+                let match = matcher.computeMatch(parent, s);
                 match = _.cloneDeep(match);
 
                 if(match.matchScore > 0) {
