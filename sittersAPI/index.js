@@ -2,7 +2,8 @@
 
 // dependencies
 const dbHandler = require('../modules/dbHandler'),
-    axios = require("axios");
+      matcher = require('../modules/matcher'),
+      suggestionsEngine = require('../modules/suggestionsEngine');
 
 
 exports.index = (req, res, next) => {
@@ -11,6 +12,7 @@ exports.index = (req, res, next) => {
 
 exports.createUser = (req, res, next) => {
     dbHandler.createUser(req, res, next);
+    if(!req.body.isParent)suggestionsEngine.newSitterSuggestion(req.body);
 };
 
 exports.getUser = (req, res, next) => {
@@ -26,7 +28,7 @@ exports.deleteUser = (req, res, next) => {
 };
 
 exports.getMatches = (req, res, next) => {
-    dbHandler.getMatches(req, res, next);
+    matcher.getMatches(req, res, next);
 };
 
 exports.updateFriends = (req, res, next) => {

@@ -3,11 +3,8 @@
 // dependencies
 const mongoose = require('mongoose'),
     _ = require("lodash"),
-    webpush = require('web-push'),
-    gcm = require('node-gcm'),
     moment = require('moment'),
-    clone = require('clone'),
-    matcher = require('./../matcher');
+    pushNotifications = require('./../pushNotifications');
 
 // schemes
 const base = require('../schemas/base'),
@@ -103,49 +100,6 @@ async function updateUser(user) {
     }
 }
 
-function pushNotification(notifications, senderGCM, invite) {
-    webNotifications(notifications, invite);
-    if (senderGCM !== null && typeof senderGCM !== 'undefined' && senderGCM.valid)
-        mobileNotifications(senderGCM.senderId, invite);
-}
-
-function webNotifications(pushNotifications, data) {
-    if (pushNotifications) {
-        webpush.setGCMAPIKey('AIzaSyC_cF6XxPyOpQXdM01txENJsPfLQ61lDzE'); // const
-        webpush.setVapidDetails(
-            'mailto:arel-g@hotmail.com', // const
-            "BA9TXkOAudBsHZCtma-VftBiXmAc-Ho4M7SwAXRpZDR-DsE6pdMP_HVTTQaa3vkQuHLcB6hB87yiunJFUEa4Pas", // const
-            "9wDAtLKaQZh08dyQzkLkXHnLSGbMeeLA0TErWrE_Gjw"
-        );
-        webpush.sendNotification(pushNotifications, JSON.stringify(data));
-    }
-}
-
-function mobileNotifications(senderId, data) {
-    // Set up the sender with your GCM/FCM API key (declare this once for multiple messages)
-    var sender = new gcm.Sender('AIzaSyAy5Z6ByEm4CX3YwohagPTOi0qlMC3XPaU');
-    console.log('mobileNotifications');
-
-    // Prepare a message to be sent
-    var message = new gcm.Message();
-    var messageStr = data.message ? data.message : "New Invite";
-
-    message.addData('data', data);
-    message.addNotification('message', data.message ? data.message : "New Invite");
-
-    console.log(message);
-
-    // Specify which registration IDs to deliver the message to
-    var regTokens = [senderId];
-
-    // Actually send the message
-    sender.send(message, {registrationTokens: regTokens}, function (err, response) {
-        if (err) console.error(err);
-        else console.log('success');
-    });
-}
-
-
 exports.createUser = (req, res) => {
     let user = req.body.isParent ? new Parent(req.body) : new Sitter(req.body);
     user.save(function (err) {
@@ -153,6 +107,7 @@ exports.createUser = (req, res) => {
             error(res, err);
         }
         else {
+            if(!user.isParent)
             status(res, req.body.name + " created");
         }
     });
@@ -203,16 +158,6 @@ exports.deleteUser = async(req, res, next) => {
     });
 };
 
-
-function isMatch(parent, sitter) {
-    if (sitter.settings.allowShowOnSearch) {
-        sitter.match = clone(matcher.computeMatch(parent, sitter));
-        sitter.matchScore = sitter.match.matchScore;
-       if (sitter.match.matchScore > 50) return true;
-    }
-    return false;
-}
-
 function updateMultipleInvites(multipleInvites, invites) {
     let sitterInvite = _.find(multipleInvites, function (obj) { // find parent in multiple invites
         return obj._id === invites[0].parentID;
@@ -223,28 +168,6 @@ function updateMultipleInvites(multipleInvites, invites) {
         multipleInvites.push({_id: invites[0].parentID, count: invites.length});
     _.orderBy(multipleInvites, ['count'], ['desc']);
 }
-
-exports.getMatches = async(req, res) => {
-    const sitters = await getSitters();
-    if (sitters) {
-        const parent = req.body;
-        // flatten sitters to key value pairs (id -> sitterDetails)
-        const sittersMap = _.keyBy(_.map(sitters, '_doc'), function (sitter) {
-            return sitter._id
-        });
-        // find sitters that are not blacklisted for this parent
-        const whitelist = _.filter(sittersMap, sitter => !(_.includes(parent.blacklist, sitter._id)));
-
-        // find matching sitters in whitelist
-        const matchingSitters = _.filter(whitelist, sitter => isMatch(parent, sitter));
-
-        // return a descending ordered list of matching sitters
-        res.status(200).json(_.orderBy(matchingSitters, ['matchScore'], ['desc']));
-    }
-    else {
-        error(res, "No sitters found");
-    }
-};
 
 exports.updateFriends = async(req, res) => {
     let user = req.body;
@@ -305,7 +228,7 @@ exports.sendInvite = async(req, res, next) => {
             error(res, response);
         else {
             // send notification to sitter
-            pushNotification(sitter.pushNotifications, sitter.senderGCM, invites[0]);
+            pushNotifications.sendPushNotification(sitter.pushNotifications, sitter.senderGCM, invites[0]);
             status(res, "invite created by " + parent.name + "and sent to " + sitter.name);
         }
     }
@@ -339,9 +262,13 @@ exports.updateInvite = async(req, res) => {
 
     if (result) error(res, result);
     else if (req.body.action !== 'wasRead' && inviteData.status !== 'waiting')
-        pushNotification(parent.pushNotifications.toObject(), parent.senderGCM, inviteData);
+        pushNotifications.sendPushNotification(parent.pushNotifications.toObject(), parent.senderGCM, inviteData);
 
     status(res, "invite updated");
 
 };
+
+module.exports.getParents = getParents;
+module.exports.getSitters = getSitters;
+module.exports.updateUser = updateUser;
 

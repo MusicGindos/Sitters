@@ -5,7 +5,7 @@
 const express = require('express'),
     _ = require('lodash'),
     googleDistance = require('google-distance'),
-    db = require('../dbHandler'),
+    dbHandler = require('../dbHandler'),
     reliabilityFilter = require('../reliabilityFilter'),
     scoreSets = require('./scoreSets').scoreSets;
 
@@ -92,7 +92,16 @@ let calculateMatchScores = function (matchData, scoreSetName) {
     return matchScore;
 };
 
-exports.computeMatch = function (parent, sitter) {
+function isMatch(parent, sitter) {
+    if (sitter.settings.allowShowOnSearch) {
+        sitter.match = computeMatch(parent, sitter);
+        sitter.matchScore = sitter.match.matchScore;
+        if (sitter.match.matchScore > 50) return true;
+    }
+    return false;
+}
+
+function computeMatch (parent, sitter) {
     let scoreSet = 'default';
     let match = {
         matchScore: 0,
@@ -138,9 +147,38 @@ exports.computeMatch = function (parent, sitter) {
         scoreSet = "withoutHobbies";
     }
 
+    if(sitter.multipleInvites.length > 0){
+        if(sitter.multipleInvites[0].count >= 5)
+            match.matchScore =  match.matchScore + 5 > 100 ? 100: (match.matchScore + 5); // 5% bonus if sitter have 5 invites from 1 parent
+    }
+
     match.matchScore = calculateMatchScores(matchData, scoreSet);
     match.data = _.orderBy(matchData, ['value'], ['desc']);
     match.mutualFriends = reliabilityFilter.getMutualFriends(parent.friends, sitter.friends);
 
     return match;
 };
+
+exports.getMatches = async(req, res) => {
+    const sitters = await dbHandler.getSitters();
+    if (sitters) {
+        const parent = req.body;
+        // flatten sitters to key value pairs (id -> sitterDetails)
+        const sittersMap = _.keyBy(_.map(sitters, '_doc'), function (sitter) {
+            return sitter._id
+        });
+        // find sitters that are not blacklisted for this parent
+        const whitelist = _.filter(sittersMap, sitter => !(_.includes(parent.blacklist, sitter._id)));
+
+        // find matching sitters in whitelist
+        const matchingSitters = _.filter(whitelist, sitter => isMatch(parent, sitter));
+
+        // return a descending ordered list of matching sitters
+        res.status(200).json(_.orderBy(matchingSitters, ['matchScore'], ['desc']));
+    }
+    else {
+        res.status(404).json("No sitters found");
+    }
+};
+
+module.exports.computeMatch = computeMatch;
