@@ -22,7 +22,7 @@ const options = {
 // response objects
 let error = (res, error) => {
     console.log(error.message);
-    res.status(400).json({
+    res.status(404).json({
         'error': error.message
     });
 };
@@ -107,8 +107,8 @@ exports.createUser = (req, res) => {
             error(res, err);
         }
         else {
-            if(!user.isParent)
-            status(res, req.body.name + " created");
+            if (!user.isParent)
+                status(res, req.body.name + " created");
         }
     });
 };
@@ -271,4 +271,3 @@ exports.updateInvite = async(req, res) => {
 module.exports.getParents = getParents;
 module.exports.getSitters = getSitters;
 module.exports.updateUser = updateUser;
-
