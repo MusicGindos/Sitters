@@ -9,6 +9,7 @@ let Settings = new Schema({
     allowNotification: {type: Boolean, default: true},
     allowSuggestions: {type: Boolean, default: true}
 }, {_id: false});
+
 let Partner = new Schema({
     email: {type: String, required: true},
     name: {type: String, required: true},
@@ -34,13 +35,11 @@ let PushNotifications = new Schema({
 
 let parent = base.user.extend({
     address: base.address,
-    personalityTest: base.personalityTest,
     partner: Partner,
     children: Child,
     maxPrice: Number,
     blacklist: [String],
     settings: Settings,
-    matchBI: base.matchBI,
     preferedGender: String,
     pushNotifications: PushNotifications
 }, {collection: "parents"}, {_id: false});

@@ -38,18 +38,6 @@ let invite = new Schema({
     childName: String,
 });
 
-let question = new Schema({
-    label1: String,
-    label2: String,
-    value: Number
-}, {_id: false});
-
-let personalityTest = new Schema({
-    questions: [question],
-    totalScore: Number
-}, {_id: false});
-
-
 let notification = new Schema({
     _id: {type: String},
     message: String,
@@ -69,11 +57,6 @@ let notification = new Schema({
     match: Object
 });
 
-let matchBI = new Schema({
-    median: Number,
-    matchScores: [Number]
-}, {_id: false});
-
 let friend = new Schema({
     name: String,
     id: String,
@@ -82,20 +65,16 @@ let friend = new Schema({
 
 let user = new Schema({
     _id: {type: String},
-    userType: {type: String, default: "I'm a parent"},
     email: {type: String, required: true},
     name: {type: String, required: true},
     joinedTime: {type: Date, default: Date.now},
     gender: {type: String, required: true},
-    currencyType: String,
     profilePicture: String,
     coverPhoto: String,
     age: {type: Number, required: true, min: 0},
     languages: [String],
-    timezone: String,
     notifications: [notification],
     invites: [invite],
-    mutualFriends: [friend],
     friends: [friend],
     personality: [String],
     isParent: Boolean,
@@ -110,10 +89,7 @@ module.exports = {
     address: address,
     invite: invite,
     hours: hours,
-    question: question,
-    personalityTest: personalityTest,
     notification: notification,
-    matchBI: matchBI,
     friend: friend,
     user: user
 };
