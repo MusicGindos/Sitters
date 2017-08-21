@@ -2,7 +2,7 @@
 
 //dependencies
 const webpush = require('web-push'),
-    gcm = require('node-gcm');
+      gcm = require('node-gcm');
 
 exports.sendPushNotification = function (webEndPoint, senderGCM, notificationData) {
     webNotifications(webEndPoint, notificationData);

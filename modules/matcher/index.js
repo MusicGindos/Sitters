@@ -11,7 +11,7 @@ const _ = require('lodash'),
 
 const MAX_DISTANCE = 50;
 
-let getDistance = async function (parentAddress, sitterAddress) {  // google-distance is async and we need it to be sync so we use wrapper with flag
+let getDistance = async function (parentAddress, sitterAddress) {
     return await geodist({lat: parentAddress.latitude, lon: parentAddress.longitude}, {lat: sitterAddress.latitude, lon: sitterAddress.longitude}, {unit: 'km'});
 };
 

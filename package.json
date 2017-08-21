@@ -1,14 +1,14 @@
 {
   "name": "sitters",
-  "version": "1.0.0",
-  "description": "api for matching parents with sitters",
+  "version": "2.0.0",
+  "description": "A web service for matching parents with sitters",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MusicGindos/Sitters.git"
+    "url": "https://github.com/MusicGindos/Sitters"
   },
   "author": "Arel Gindos, Dassi Rosen, Gregori K",
   "license": "MIT",
@@ -19,20 +19,14 @@
   "dependencies": {
     "axios": "^0.16.1",
     "body-parser": "^1.16.1",
-    "clone": "^2.1.1",
     "cors": "^2.8.1",
-    "deasync": "^0.1.9",
     "express": "^4.14.1",
     "geodist": "^0.2.1",
-    "google-distance": "^1.0.1",
-    "jsonfile": "^2.4.0",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "mongoose": "^4.8.4",
     "mongoose-schema-extend": "^0.2.2",
     "node-gcm": "^0.14.6",
-    "shortid": "^2.2.6",
-    "shuffle-array": "^1.0.1",
     "uuid": "^3.0.1",
     "web-push": "^3.2.2"
   }
