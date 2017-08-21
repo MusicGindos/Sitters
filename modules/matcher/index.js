@@ -2,26 +2,17 @@
 
 // dependencies
 
-const express = require('express'),
-    _ = require('lodash'),
-    googleDistance = require('google-distance'),
+const _ = require('lodash'),
     dbHandler = require('../dbHandler'),
     reliabilityFilter = require('../reliabilityFilter'),
-    scoreSets = require('./scoreSets').scoreSets;
+    scoreSets = require('./scoreSets').scoreSets,
+    geodist = require('geodist'),
+    db = require('../dbHandler');
 
 const MAX_DISTANCE = 50;
 
-let getDistance = function (parentAddress, sitterAddress) {  // google-distance is async and we need it to be sync so we use wrapper with flag
-    const origin = parentAddress.latitude + ',' + parentAddress.longitude; // compute by latitude and longitude
-    const destination = sitterAddress.latitude + ',' + sitterAddress.longitude;  // compute by latitude and longitude
-    googleDistance.apiKey = "AIzaSyBwP7ZYyCO86H41nE-E5eHYPCDir9yBpc0";  // google-distance apikey
-    googleDistance.get({  // compute distance between 2 locations, can be street-houseNumber-city OR latitude/longitude
-            origin: origin,
-            destination: destination
-        },
-        function (err, distance) {
-            return  err ? err : Number(distance.distance.split(' ')[0]);
-        });
+let getDistance = async function (parentAddress, sitterAddress) {  // google-distance is async and we need it to be sync so we use wrapper with flag
+    return await geodist({lat: parentAddress.latitude, lon: parentAddress.longitude}, {lat: sitterAddress.latitude, lon: sitterAddress.longitude}, {unit: 'km'});
 };
 
 let isAgeInRange = function (age, minAge, maxAge) {
@@ -92,24 +83,22 @@ let calculateMatchScores = function (matchData, scoreSetName) {
     return matchScore;
 };
 
-function isMatch(parent, sitter) {
+async function isMatch(parent, sitter, callback) {
     if (sitter.settings.allowShowOnSearch) {
-        sitter.match = computeMatch(parent, sitter);
+        sitter.match =  await computeMatch(parent, sitter);
         sitter.matchScore = sitter.match.matchScore;
-        if (sitter.match.matchScore > 50) return true;
+        if (sitter.match.matchScore > 50) callback (sitter);
     }
-    return false;
 }
 
-function computeMatch (parent, sitter) {
+async function computeMatch(parent, sitter) {
     let scoreSet = 'default';
     let match = {
         matchScore: 0,
         data: [],
         mutualFriends: 0
     };
-    // const distance = await getDistance(parent.address, sitter.address);
-    const distance = 5;
+    let distance = await getDistance(parent.address, sitter.address);
     const sitterHasMustHaves = isAgeInRange(parent.children.age, sitter.minAge, sitter.maxAge)
     && isPriceInRange(parent.maxPrice, sitter.hourFee)
     && isLocationInRange(distance)
@@ -157,7 +146,8 @@ function computeMatch (parent, sitter) {
     match.mutualFriends = reliabilityFilter.getMutualFriends(parent.friends, sitter.friends);
 
     return match;
-};
+
+}
 
 exports.getMatches = async(req, res) => {
     const sitters = await dbHandler.getSitters();
@@ -169,16 +159,18 @@ exports.getMatches = async(req, res) => {
         });
         // find sitters that are not blacklisted for this parent
         const whitelist = _.filter(sittersMap, sitter => !(_.includes(parent.blacklist, sitter._id)));
-
-        // find matching sitters in whitelist
-        const matchingSitters = _.filter(whitelist, sitter => isMatch(parent, sitter));
-
-        // return a descending ordered list of matching sitters
-        res.status(200).json(_.orderBy(matchingSitters, ['matchScore'], ['desc']));
+        let matchingSitters = [];
+        _.forEach(whitelist,function(sitter, index){
+            // let match = isMatch(parent, sitter);
+            isMatch(parent, sitter, function(sitterObj){
+                if(sitterObj.match.matchScore > 50) matchingSitters.push(sitterObj);
+                if(index === (whitelist.length -1))
+                    res.status(200).json(_.orderBy(matchingSitters, ['matchScore'], ['desc']));
+            });
+        });
     }
     else {
         res.status(404).json("No sitters found");
     }
 };
-
 module.exports.computeMatch = computeMatch;
