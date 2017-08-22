@@ -16,8 +16,7 @@ app.use(cors());
 // set headers
 app.use(function(req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST');
-    res.setHeader('Access-Control-Allow-Methods', 'DELETE');
+    res.setHeader('Access-Control-Allow-Methods', ['POST', 'PUT', 'DELETE']);
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, content-type, Accept');
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader("Content-Type", "text/html");
@@ -29,12 +28,12 @@ app.use(function(req, res, next) {
 // set server endpoints
 app.post('/user/create', controller.createUser);
 app.post('/user/get', controller.getUser);
-app.post('/user/update', controller.updateUser);
+app.put('/user/update', controller.updateUser);
 app.delete('/user/delete', controller.deleteUser);
 app.post('/parent/getMatches', controller.getMatches);
-app.post('/user/updateFriends', controller.updateFriends);
+app.put('/user/updateFriends', controller.updateFriends);
 app.post('/invite/send', controller.sendInvite);
-app.post('/invite/update', controller.updateInvite);
+app.put('/invite/update', controller.updateInvite);
 
 
 app.get('*', (req,res,next) => {
