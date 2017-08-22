@@ -32,7 +32,7 @@ app.put('/user/update', controller.updateUser);
 app.delete('/user/delete', controller.deleteUser);
 app.post('/parent/getMatches', controller.getMatches);
 app.put('/user/updateFriends', controller.updateFriends);
-app.post('/invite/send', controller.sendInvite);
+app.post('/invite/create', controller.sendInvite);
 app.put('/invite/update', controller.updateInvite);
 
 
@@ -44,12 +44,7 @@ app.get('*', (req,res,next) => {
 });
 
 app.use((err,req,res) => {
-    if(err.status == 400){
-    return res.status(400).end(err.message);
-    }
-    else if(err.status == 500){
-        return res.status(500).end(err.message);
-    }
+    return res.status(err.status).end(err.message);
 });
 
 app.listen(port, () => {

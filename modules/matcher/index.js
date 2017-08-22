@@ -118,7 +118,7 @@ async function computeMatch(parent, sitter) {
     let matchData = [
         {name: 'Experience', value: experienceScore},
         {name: 'Proximity', value: proximityScore},
-        {name: 'ReliabilityScore', value: reliabilityScore},
+        {name: 'Reliability', value: reliabilityScore},
         {name: 'Education', value: educationScore}
     ];
 

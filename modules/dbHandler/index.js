@@ -89,7 +89,7 @@ async function getSitters() {
     }
 }
 
-async function updateUser(user) {
+async function update(user) {
     try {
         await user.update({$set: user}, function (result) {
             return result;
@@ -138,7 +138,7 @@ exports.updateUser = async(req, res, next) => {
             index ? parent.blacklist.splice(index, 1) : _.noop();
         });
     }
-    const result = await updateUser(user);
+    const result = await update(user);
     result ? error(res, result) : status(res, user.name + " updated");
 };
 
@@ -214,7 +214,7 @@ exports.sendInvite = async(req, res, next) => {
     });
     // add invites to parent invites
     parent.invites = _.union(parent.invites, parentInvites);
-    const result = await updateUser(parent);
+    const result = await update(parent);
 
     //sitter
     if (!result) {
@@ -222,7 +222,7 @@ exports.sendInvite = async(req, res, next) => {
         // add invites to sitter invites
         sitter.invites = _.union(sitter.invites, invites);
         sitter.lastInvite = moment().format("DD/MM/YYYY");
-        const response = await updateUser(sitter);
+        const response = await update(sitter);
 
         if (response)
             error(res, response);
@@ -270,4 +270,4 @@ exports.updateInvite = async(req, res) => {
 
 module.exports.getParents = getParents;
 module.exports.getSitters = getSitters;
-module.exports.updateUser = updateUser;
+module.exports.update = update;

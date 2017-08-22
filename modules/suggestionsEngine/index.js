@@ -39,7 +39,7 @@ function notifyParents(parents, sitter) {
             const notification = createNotification(sitter, match);
             parent.notifications.push(notification);
             let sitterData = sitter.toObject();
-            dbHandler.updateUser(parent).then(function () {
+            dbHandler.update(parent).then(function () {
                 sitterData.match = match;
                 sitterData.matchScore = match.matchScore;
                 const notificationData = {
