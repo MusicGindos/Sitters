@@ -5,11 +5,6 @@ const dbHandler = require('../modules/dbHandler'),
       matcher = require('../modules/matcher'),
       suggestionsEngine = require('../modules/suggestionsEngine');
 
-
-exports.index = (req, res, next) => {
-
-};
-
 exports.createUser = (req, res, next) => {
     dbHandler.createUser(req, res, next);
     if(!req.body.isParent)suggestionsEngine.newSitterSuggestion(req.body);

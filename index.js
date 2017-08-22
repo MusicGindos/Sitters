@@ -24,7 +24,6 @@ app.use(function(req, res, next) {
     next();
 });
 
-// app.get('/', controller.index);
 // set server endpoints
 app.post('/user/create', controller.createUser);
 app.post('/user/get', controller.getUser);
