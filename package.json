@@ -2,6 +2,9 @@
   "name": "sitters",
   "version": "2.0.0",
   "description": "A web service for matching parents with sitters",
+  "engines": {
+    "node": "8.2.1"
+  },
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
