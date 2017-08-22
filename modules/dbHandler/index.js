@@ -184,7 +184,7 @@ exports.updateFriends = async(req, res) => {
             }
         }
     }
-    const result = await updateUser(user);
+    const result = await update(user);
     result ? error(res, result) : status(res, user.name + " friends updated");
 };
 
@@ -248,7 +248,7 @@ exports.updateInvite = async(req, res) => {
             invite.wasRead = inviteData.wasRead;
         }
     });
-    let result = await updateUser(sitter);
+    let result = await update(sitter);
 
     //parent
     parent.invites.forEach(invite => {
@@ -258,7 +258,7 @@ exports.updateInvite = async(req, res) => {
         }
     });
 
-    result = await updateUser(parent);
+    result = await update(parent);
 
     if (result) error(res, result);
     else if (req.body.action !== 'wasRead' && inviteData.status !== 'waiting')
