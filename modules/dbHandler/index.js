@@ -167,7 +167,8 @@ function updateMultipleInvites(multipleInvites, invites) {
 }
 
 exports.updateFriends = async(req, res) => {
-    let user = req.body;
+    const userData = req.body;
+    let user = userData.isParent ? new Parent(userData) : new Sitter(userData);
     const parents = await
         getParents();
     const sitters = await

@@ -34,6 +34,10 @@ app.put('/user/updateFriends', controller.updateFriends);
 app.post('/invite/create', controller.sendInvite);
 app.put('/invite/update', controller.updateInvite);
 
+app.get('sitters/', (req, res, next) => {
+   console.log('get sitter');
+});
+
 // error handling
 app.use((err, req, res, next) => {
     console.error(err.stack);
