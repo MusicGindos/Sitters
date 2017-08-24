@@ -8,7 +8,7 @@ const matcher = require('../matcher'),
     pushNotifications = require('../pushNotifications');
 
 //schemas
-const Sitter = require('../schemas/sitter').sitterModel;
+const Sitter = require('../../schemas/sitter').sitterModel;
 
 // statics
 const NEW_SITTER_MSG = "New Sitter Available";

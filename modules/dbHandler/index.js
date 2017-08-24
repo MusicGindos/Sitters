@@ -7,31 +7,18 @@ const mongoose = require('mongoose'),
     pushNotifications = require('./../pushNotifications');
 
 // schemes
-const base = require('../schemas/base'),
-    Parent = require('../schemas/parent').Parent,
-    Sitter = require('../schemas/sitter').sitterModel;
+const base = require('.././../schemas/base'),
+    Parent = require('../../schemas/parent').Parent,
+    Sitter = require('../../schemas/sitter').sitterModel;
 
-// configurations
-const config = {mongoUrl: 'mongodb://sitter:123456@ds157499.mlab.com:57499/sitter'};
+// db configurations
+const config = {mongoUri: 'mongodb://sitter:123456@ds157499.mlab.com:57499/sitter'};
 const options = {
     server: {
         auto_reconnect: true,
     }
 };
-
-// response objects
-let error = (res, error) => {
-    console.log(error.message);
-    res.status(404).json({
-        'error': error.message
-    });
-};
-
-let status = (res, status) => {
-    res.status(200).json({'status': status});
-};
-
-mongoose.connect(config.mongoUrl, options);
+mongoose.connect(config.mongoUri, options);
 let db = mongoose.connection;// a global connection variable
 
 // event handlers for Mongoose
@@ -49,9 +36,19 @@ db.on('reconnected', function () {
     console.info('Mongoose reconnected!');
 });
 
-db.once('open', function () { // if needed to do action once got connection
+// response objects
+const error = (res, error) => {
+    console.log(error.message);
+    res.status(error.status).json({
+        'error': error.message
+    });
+};
 
-});
+const status = (res, status) => {
+    res.status(status.status).json({'status': status.message});
+};
+
+// queries
 
 async function getParent(user_id) {
     try {
