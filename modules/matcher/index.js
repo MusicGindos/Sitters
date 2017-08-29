@@ -83,7 +83,7 @@ let calculateMatchScores = function (matchData, scoreSetName) {
 };
 
 async function isMatch(parent, sitter, callback) {
-    if (sitter.settings.allowShowOnSearch) {
+    if (!_.isEmpty(parent) && !_.isEmpty(sitter) && sitter.settings.allowShowOnSearch) {
         sitter.match =  await computeMatch(parent, sitter);
         sitter.matchScore = sitter.match.matchScore;
         if (sitter.match.matchScore > 50) callback (sitter);
@@ -173,3 +173,4 @@ exports.getMatches = async(req, res) => {
     }
 };
 module.exports.computeMatch = computeMatch;
+module.exports.isMatch = isMatch;
