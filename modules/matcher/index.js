@@ -6,8 +6,7 @@ const _ = require('lodash'),
     dbHandler = require('../dbHandler'),
     reliabilityFilter = require('../reliabilityFilter'),
     scoreSets = require('./scoreSets').scoreSets,
-    geodist = require('geodist'),
-    db = require('../dbHandler');
+    geodist = require('geodist');
 
 const MAX_DISTANCE = 50;
 
@@ -33,7 +32,7 @@ let isRequiredGender = function (preferedGender, gender) {
 
 let addSitterToBlacklist = function (parent, sitter_id) {
     parent.blacklist.push(sitter_id);
-    db.addSitterToBlacklist(parent);
+    dbHandler.addSitterToBlacklist(parent);
 };
 
 let isSpecialNeedsTrained = function (requiredSpecialNeeds, offeredSpecialNeeds) {
