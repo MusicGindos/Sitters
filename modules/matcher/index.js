@@ -88,6 +88,7 @@ async function isMatch(parent, sitter, callback) {
         sitter.matchScore = sitter.match.matchScore;
         if (sitter.match.matchScore > 50) callback (sitter);
     }
+    else return {};
 }
 
 async function computeMatch(parent, sitter) {
